@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<script>try{if(sessionStorage.getItem("journey-arrive")){document.documentElement.style.background="#F7E9C6";var s=document.createElement("style");s.textContent="html,body{background:#F7E9C6}body{opacity:0;transition:opacity .5s ease}body.jready{opacity:1}";document.head.appendChild(s);setTimeout(function(){document.body&&document.body.classList.add("jready")},2500);}}catch(e){}</script>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Veloce UI — case study · Yash Kesharwani</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@keyframes sail{0%{transform:translate(140%,30px) rotate(6deg);opacity:0}60%{opacity:1}100%{transform:translate(0,0) rotate(0)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+body{margin:0;background:#C9B8FF;color:#111;font-family:'Space Grotesk',sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#111}a:hover{color:#FF8A7A}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="position:relative;overflow:hidden;background:#C9B8FF">
+  <div ref="{{ barRef }}" style="position:fixed;top:0;left:0;height:6px;width:0;background:#111;z-index:60"></div>
+  <svg ref="{{ svgRef }}" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;overflow:visible">
+    <path ref="{{ basePathRef }}" d="" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 16" opacity="0.3"></path>
+    <path ref="{{ donePathRef }}" d="" fill="none" stroke="#111" stroke-width="5" stroke-linecap="round" opacity="0.55" style="mix-blend-mode:multiply"></path>
+  </svg>
+  <div ref="{{ markerRef }}" aria-hidden="true" style="position:absolute;left:0;top:0;z-index:5;pointer-events:none;will-change:transform;opacity:0">
+    <div style="transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center">
+      <div style="background:#FF8A7A;border:3px solid #111;padding:4px 10px;font:700 11px 'Space Mono',monospace;box-shadow:3px 3px 0 #111;white-space:nowrap;transform:rotate(-4deg)">YOU ARE HERE</div>
+      <div style="width:16px;height:16px;background:#111;border-radius:50%;margin-top:6px;border:3px solid #FFF6E8;box-shadow:0 0 0 3px #111"></div>
+    </div>
+  </div>
+  <div ref="{{ cursorRef }}" aria-hidden="true" style="position:fixed;left:0;top:0;z-index:100;pointer-events:none;opacity:0;transition:opacity .2s;will-change:transform">
+    <div ref="{{ dotRef }}" style="position:absolute;left:0;top:0;width:14px;height:14px;background:#111;border-radius:50%;box-shadow:0 0 0 2px #FFF6E8;transform:translate(-50%,-50%);transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s"></div>
+    <div ref="{{ labelRef }}" style="position:absolute;left:0;top:0;transform:translate(22px,-50%);opacity:0;transition:opacity .15s,transform .15s;background:#111;color:#FFF6E8;font:700 11px 'Space Mono',monospace;letter-spacing:.06em;padding:5px 9px;white-space:nowrap"></div>
+  </div>
+
+  <nav style="position:relative;z-index:3;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:clamp(20px,3vw,32px) clamp(24px,5vw,64px);border-bottom:4px solid #111;background:#FFF6E8">
+    <a href="index.html#work" data-travel="map" style="text-decoration:none;font:700 13px 'Space Mono',monospace;background:#FFE566;border:3px solid #111;padding:10px 14px;box-shadow:4px 4px 0 #111;min-height:44px;display:flex;align-items:center" style-hover="transform:translate(2px,2px);box-shadow:2px 2px 0 #111;color:#111">← BACK TO THE MAP</a>
+    <div style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em">CASE STUDY 03 / 03</div>
+    <a href="Case NotchIsland.html" data-travel="notch" style="text-decoration:none;font:700 13px 'Space Mono',monospace;border:3px solid #111;padding:10px 14px;background:#FFF6E8;box-shadow:4px 4px 0 #111;min-height:44px;display:flex;align-items:center" style-hover="transform:translate(2px,2px);box-shadow:2px 2px 0 #111;color:#111">FIRST: NOTCHISLAND →</a>
+  </nav>
+
+  <header data-screen-label="Hero" style="position:relative;z-index:3;padding:clamp(48px,8vw,110px) clamp(24px,5vw,64px) clamp(32px,5vw,64px);background:repeating-linear-gradient(0deg,transparent 0 31px,rgba(17,17,17,.07) 31px 32px),repeating-linear-gradient(90deg,transparent 0 31px,rgba(17,17,17,.07) 31px 32px)">
+    <div aria-hidden="true" style="position:absolute;right:clamp(16px,6vw,120px);top:clamp(70px,10vh,120px);width:clamp(70px,8vw,110px);animation:sail 1.6s cubic-bezier(.2,.8,.2,1) .1s both;pointer-events:none;z-index:1">
+      <div style="animation:bob 2.6s ease-in-out infinite"><svg viewBox="0 0 120 110" style="display:block;width:100%;height:auto;overflow:visible"><path d="M14 78 L106 78 L92 100 L28 100 Z" fill="#111"></path><path d="M58 78 L58 10" stroke="#111" stroke-width="5" stroke-linecap="round"></path><path d="M62 14 L104 66 L62 66 Z" fill="#FFF6E8" stroke="#111" stroke-width="4" stroke-linejoin="round"></path><path d="M54 22 L20 62 L54 62 Z" fill="#FF8A7A" stroke="#111" stroke-width="4" stroke-linejoin="round"></path><path d="M0 104 Q 15 96 30 104 T 60 104 T 90 104 T 120 104" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" opacity=".7"></path></svg></div>
+    </div>
+    <div style="max-width:1400px;margin:0 auto;position:relative">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px"><div data-stop="1" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:56px;height:56px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#FFE566;font:400 14px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 0 0 10px"><span style="transform:rotate(45deg)">01</span></div><span style="background:#FFF6E8;border:3px solid #111;padding:6px 12px;font:700 12px 'Space Mono',monospace;letter-spacing:.1em;box-shadow:4px 4px 0 #111">CAMP 03 · THE WINDS</span><span aria-hidden="true" style="font:700 12px 'Space Mono',monospace;transform:rotate(-3deg);display:inline-flex;align-items:center;gap:6px;opacity:.85"><svg viewBox="0 0 50 20" width="50" height="20"><path d="M2 16 C 14 2, 30 2, 46 10" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 4"></path><path d="M38 4 L47 10 L37 15" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>fast, by design</span></div>
+    <div style="display:inline-block;background:#111;color:#FFF6E8;padding:6px 14px;font:700 13px 'Space Mono',monospace;transform:rotate(-2deg);margin:0 0 24px 16px">REACT COMPONENT LIBRARY · v1.0 · npm</div>
+    <h1 style="font:400 clamp(52px,10vw,150px)/0.9 'Archivo Black',sans-serif;margin:0 0 24px;letter-spacing:-.03em">VELOCE<br>UI</h1>
+    <p style="font:500 clamp(18px,2vw,26px)/1.4 'Space Grotesk',sans-serif;max-width:50ch;margin:0 0 32px;text-wrap:pretty">Components that move. Accessible React components with signature motion built in — every transition is pure CSS, no animation library, nothing shipped to the client but your UI.</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:48px;align-items:center">
+      <a href="https://veloceui.codeloomdevv.co.in/" target="_blank" rel="noopener" style="text-decoration:none;font:700 14px 'Space Mono',monospace;background:#111;color:#FFF6E8;border:3px solid #111;padding:14px 20px;box-shadow:5px 5px 0 #FF8A7A" style-hover="transform:translate(2px,2px);box-shadow:3px 3px 0 #FF8A7A;color:#FFF6E8">OPEN THE DOCS ↗</a>
+      <a href="https://github.com/YashKesh/Veloce-UI" target="_blank" rel="noopener" style="text-decoration:none;font:700 14px 'Space Mono',monospace;background:#FFF6E8;color:#111;border:3px solid #111;padding:14px 20px;box-shadow:5px 5px 0 #111" style-hover="transform:translate(2px,2px);box-shadow:3px 3px 0 #111;color:#111">GITHUB ↗</a>
+      <code style="font:700 14px 'Space Mono',monospace;background:#FFF6E8;border:3px solid #111;padding:12px 16px;box-shadow:5px 5px 0 #111">$ npm install veloce-ui</code>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:16px">
+      <div style="background:#FFF6E8;border:3px solid #111;padding:18px;box-shadow:5px 5px 0 #111;transform:rotate(-1deg)"><div style="font:400 clamp(32px,4vw,56px)/1 'Archivo Black',sans-serif">36</div><div style="font:700 12px 'Space Mono',monospace;margin-top:6px">PRIMITIVES</div></div>
+      <div style="background:#FFE566;border:3px solid #111;padding:18px;box-shadow:5px 5px 0 #111;transform:rotate(.8deg)"><div style="font:400 clamp(32px,4vw,56px)/1 'Archivo Black',sans-serif">13</div><div style="font:700 12px 'Space Mono',monospace;margin-top:6px">COMPOSABLE CHARTS</div></div>
+      <div style="background:#B8F2D0;border:3px solid #111;padding:18px;box-shadow:5px 5px 0 #111;transform:rotate(-.6deg)"><div style="font:400 clamp(32px,4vw,56px)/1 'Archivo Black',sans-serif">0 kB</div><div style="font:700 12px 'Space Mono',monospace;margin-top:6px">ANIMATION RUNTIME</div></div>
+      <div style="background:#FFB7D9;border:3px solid #111;padding:18px;box-shadow:5px 5px 0 #111;transform:rotate(1deg)"><div style="font:400 clamp(32px,4vw,56px)/1 'Archivo Black',sans-serif">AA</div><div style="font:700 12px 'Space Mono',monospace;margin-top:6px">WCAG 2.2 ACROSS THE BOARD</div></div>
+    </div>
+    </div>
+  </header>
+
+  <section data-screen-label="Problem" style="position:relative;z-index:3;background:#FFF6E8;border-top:4px solid #111;border-bottom:4px solid #111;padding:clamp(48px,8vw,110px) clamp(24px,5vw,64px)">
+    <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:40px;align-items:center">
+      <div>
+        <div data-stop="2" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:56px;height:56px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#FFB7D9;font:400 14px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 0 22px 10px"><span style="transform:rotate(45deg)">02</span></div>
+        <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 12px">THE PROBLEM</p>
+        <h2 style="font:400 clamp(32px,4.5vw,64px)/1 'Archivo Black',sans-serif;margin:0 0 20px;letter-spacing:-.02em">MOTION IS EITHER MISSING OR 60 kB.</h2>
+        <p style="font:500 17px/1.55 'Space Grotesk',sans-serif;margin:0 0 16px">Most component kits ship static. Teams then bolt on an animation library, pay for it in bundle size and learning curve, and still end up with inconsistent fades hand-rolled per screen.</p>
+        <p style="font:500 17px/1.55 'Space Grotesk',sans-serif;margin:0">Veloce's bet: choreography is a design token. Give every component the same easing vocabulary — press 120ms, lift 200ms, stagger 40ms — and express it entirely in CSS.</p>
+      </div>
+      <figure data-reveal="" style="margin:0;border:4px solid #111;box-shadow:10px 10px 0 #111;transform:rotate(1deg);background:#111">
+        <img src="assets/veloce-hero.png" alt="Veloce UI landing: Components that move. A toast, a destructive dialog and a focus-visible button, each annotated with its timing" style="display:block;width:100%;height:auto">
+        <figcaption style="font:700 12px 'Space Mono',monospace;padding:10px 14px;background:#FFF6E8;border-top:4px solid #111">FIG. 01 — toast · stagger 40ms · swift-out</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section data-screen-label="Build" style="position:relative;z-index:3;padding:clamp(48px,8vw,110px) clamp(24px,5vw,64px);background:#C9B8FF">
+    <div style="max-width:1400px;margin:0 auto">
+      <div data-stop="3" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:56px;height:56px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#B8F2D0;font:400 14px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 0 22px 10px"><span style="transform:rotate(45deg)">03</span></div>
+      <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 12px">THE BUILD</p>
+      <h2 style="font:400 clamp(32px,4.5vw,64px)/1 'Archivo Black',sans-serif;margin:0 0 40px;letter-spacing:-.02em">TOKENS → MOTION → 36 COMPONENTS.</h2>
+      <figure data-reveal="" style="margin:0 0 40px;border:4px solid #111;box-shadow:10px 10px 0 #111;transform:rotate(-.5deg);background:#111">
+        <img src="assets/veloce-components.png" alt="Veloce UI components catalogue: Button press 120ms, Card lift 200ms, Badge, Avatar crossfade 200ms, Chip exit 150ms, Separator" style="display:block;width:100%;height:auto">
+        <figcaption style="font:700 12px 'Space Mono',monospace;padding:10px 14px;background:#FFF6E8;border-top:4px solid #111">FIG. 02 — every tile shows its enter choreography on hover</figcaption>
+      </figure>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:20px">
+        <div data-reveal="" style="background:#FFF6E8;border:3px solid #111;padding:22px;box-shadow:5px 5px 0 #111"><div style="font:400 20px 'Archivo Black',sans-serif;margin-bottom:8px">MOTION AS CUSTOM PROPERTIES</div><p style="margin:0;font:500 15px/1.5 'Space Grotesk',sans-serif">--v-dur, --v-ease, --v-stagger. Components read them; themes override them. Reduced motion zeroes them all in one rule.</p></div>
+        <div data-reveal="" style="background:#FFF6E8;border:3px solid #111;padding:22px;box-shadow:5px 5px 0 #111"><div style="font:400 20px 'Archivo Black',sans-serif;margin-bottom:8px">ACCESSIBLE BY DEFAULT</div><p style="margin:0;font:500 15px/1.5 'Space Grotesk',sans-serif">Focus-visible rings, ARIA roles, keyboard flows for every overlay. WCAG 2.2 AA audited across all 36 primitives.</p></div>
+        <div data-reveal="" style="background:#FFF6E8;border:3px solid #111;padding:22px;box-shadow:5px 5px 0 #111"><div style="font:400 20px 'Archivo Black',sans-serif;margin-bottom:8px">THEMABLE ACCENTS</div><p style="margin:0;font:500 15px/1.5 'Space Grotesk',sans-serif">Light, dim, dark + three accent hues. The switcher in the docs is the same API consumers get.</p></div>
+        <div data-reveal="" style="background:#FFF6E8;border:3px solid #111;padding:22px;box-shadow:5px 5px 0 #111"><div style="font:400 20px 'Archivo Black',sans-serif;margin-bottom:8px">DOCS THAT DEMO</div><p style="margin:0;font:500 15px/1.5 'Space Grotesk',sans-serif">Each page links a Figma example, GitHub example and Storybook story. Docs are built with the library itself.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section data-screen-label="Charts" style="position:relative;z-index:3;background:#FFF6E8;border-top:4px solid #111;border-bottom:4px solid #111;padding:clamp(48px,8vw,110px) clamp(24px,5vw,64px)">
+    <div style="max-width:1400px;margin:0 auto">
+      <div data-stop="4" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:56px;height:56px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#FFE566;font:400 14px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 0 22px 10px"><span style="transform:rotate(45deg)">04</span></div>
+      <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 12px">FEATURE DEEP-DIVE</p>
+      <h2 style="font:400 clamp(32px,4.5vw,64px)/1 'Archivo Black',sans-serif;margin:0 0 20px;letter-spacing:-.02em">CHARTS ARE COMPOSED, NOT CONFIGURED.</h2>
+      <p style="font:500 17px/1.55 'Space Grotesk',sans-serif;max-width:64ch;margin:0 0 36px">A ChartContainer owns data and scales; axes, grid, each series, tooltip, crosshair and legend are their own child components. Lines draw in along their path (600ms swift-out), points settle last, and the crosshair follows the pointer with the same easing every other Veloce component uses. The docs' tree view lets you click any node to isolate what it renders.</p>
+      <figure data-reveal="" style="margin:0;border:4px solid #111;box-shadow:10px 10px 0 #111;transform:rotate(.6deg);background:#111">
+        <img src="assets/veloce-charts.png" alt="Veloce UI line chart docs: a component tree (ChartContainer, Axes, Series, Tooltip, Crosshair, Legend) beside a revenue vs costs chart" style="display:block;width:100%;height:auto">
+        <figcaption style="font:700 12px 'Space Mono',monospace;padding:10px 14px;background:#FFF6E8;border-top:4px solid #111">FIG. 03 — draw-in 600ms swift-out · crosshair 100ms</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section data-screen-label="Stack & impact" style="position:relative;z-index:3;padding:clamp(48px,8vw,110px) clamp(24px,5vw,64px);background:#C9B8FF">
+    <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:40px">
+      <div>
+        <div data-stop="5" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:56px;height:56px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#FFB7D9;font:400 14px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 0 22px 10px"><span style="transform:rotate(45deg)">05</span></div>
+        <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 12px">THE STACK</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <span style="background:#FFF6E8;border:3px solid #111;padding:8px 12px;font:700 13px 'Space Mono',monospace;box-shadow:3px 3px 0 #111">TypeScript</span>
+          <span style="background:#FFE566;border:3px solid #111;padding:8px 12px;font:700 13px 'Space Mono',monospace;box-shadow:3px 3px 0 #111">React</span>
+          <span style="background:#A9D8FF;border:3px solid #111;padding:8px 12px;font:700 13px 'Space Mono',monospace;box-shadow:3px 3px 0 #111">CSS custom props</span>
+          <span style="background:#B8F2D0;border:3px solid #111;padding:8px 12px;font:700 13px 'Space Mono',monospace;box-shadow:3px 3px 0 #111">Storybook</span>
+          <span style="background:#FFB7D9;border:3px solid #111;padding:8px 12px;font:700 13px 'Space Mono',monospace;box-shadow:3px 3px 0 #111">npm</span>
+        </div>
+      </div>
+      <div data-reveal="">
+        <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 12px">THE IMPACT</p>
+        <div style="background:#111;color:#FFF6E8;border:3px solid #111;padding:24px;box-shadow:6px 6px 0 #FF8A7A">
+          <div style="font:400 clamp(28px,3.5vw,48px)/1 'Archivo Black',sans-serif;margin-bottom:10px">0 kB RUNTIME. 49 PARTS.</div>
+          <p style="margin:0;font:500 15px/1.5 'Space Grotesk',sans-serif">36 primitives and 13 charts share one motion vocabulary; adopting it costs a team zero bytes of JavaScript they didn't already ship.</p>
+        </div>
+      </div>
+      <div>
+        <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 12px">WHAT I'D TELL A CLIENT</p>
+        <p style="font:500 17px/1.55 'Space Grotesk',sans-serif;margin:0">Polish that scales comes from systems, not heroics. Decide the motion once, encode it, and every new screen inherits it for free.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer style="position:relative;z-index:3;background:#FFE566;border-top:4px solid #111;padding:clamp(48px,8vw,100px) clamp(24px,5vw,64px);text-align:center">
+    <div style="display:flex;justify-content:center"><div data-stop="6" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:56px;height:56px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#FF8A7A;font:400 14px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 0 22px 10px"><span style="transform:rotate(45deg)">END</span></div></div>
+    <h2 style="font:400 clamp(36px,6vw,90px)/0.95 'Archivo Black',sans-serif;margin:0 0 28px;letter-spacing:-.03em">WANT A DESIGN SYSTEM THAT MOVES?</h2>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a data-bottle="A SYSTEM THAT MOVES." href="mailto:imyash2106@gmail.com?subject=Design%20system" style="text-decoration:none;font:700 15px 'Space Mono',monospace;background:#111;color:#FFF6E8;border:3px solid #111;padding:16px 24px;box-shadow:6px 6px 0 #FF8A7A" style-hover="transform:translate(2px,2px);box-shadow:4px 4px 0 #FF8A7A;color:#FFF6E8">START A PROJECT →</a>
+      <a href="index.html#build" data-travel="build" style="text-decoration:none;font:700 15px 'Space Mono',monospace;background:#FFF6E8;color:#111;border:3px solid #111;padding:16px 24px;box-shadow:6px 6px 0 #111" style-hover="transform:translate(2px,2px);box-shadow:4px 4px 0 #111;color:#111">BACK TO THE MAP: WHAT I CAN BUILD →</a>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  rootRef = React.createRef(); svgRef = React.createRef(); basePathRef = React.createRef(); donePathRef = React.createRef(); markerRef = React.createRef(); barRef = React.createRef();
+  cursorRef = React.createRef(); dotRef = React.createRef(); labelRef = React.createRef();
+  componentDidMount() {
+    import('./journey.js').then(m => {
+      this.route = m.attachRoute(this, { root: this.rootRef, svg: this.svgRef, base: this.basePathRef, done: this.donePathRef, marker: this.markerRef, bar: this.barRef });
+      this.cursor = m.attachCursor({ cursor: this.cursorRef, dot: this.dotRef, label: this.labelRef });
+      this.bottle = m.attachBottle();
+      this.travel = m.attachTravel({ here: 'veloce' });
+    });
+  }
+  componentWillUnmount() { this.route && this.route.destroy(); this.cursor && this.cursor.destroy(); this.travel && this.travel.destroy(); this.bottle && this.bottle.destroy(); }
+  renderVals() { return { rootRef: this.rootRef, svgRef: this.svgRef, basePathRef: this.basePathRef, donePathRef: this.donePathRef, markerRef: this.markerRef, barRef: this.barRef, cursorRef: this.cursorRef, dotRef: this.dotRef, labelRef: this.labelRef }; }
+}
+</script>
+</body>
+</html>

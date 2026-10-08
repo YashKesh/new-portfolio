@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Yash Kesharwani — Software Engineer who builds things that move</title>
+<meta name="description" content="Freelance software engineer. Web apps, backend & APIs, full-stack products. Explore live projects: NotchIsland, ApiForge, Veloce UI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth}
+body{margin:0;background:#FFF6E8;color:#111;font-family:'Space Grotesk',sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#111}a:hover{color:#FF8A7A}
+@keyframes wiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes sail{0%{transform:translate(-140%,30px) rotate(-6deg);opacity:0}60%{opacity:1}100%{transform:translate(0,0) rotate(0)}}
+@keyframes stampIn{0%{transform:scale(2.2) rotate(-14deg);opacity:0}60%{transform:scale(.92) rotate(-6deg);opacity:1}100%{transform:scale(1) rotate(-6deg)}}
+@keyframes drawDash{to{stroke-dashoffset:0}}
+@keyframes enter{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="position:relative;overflow:hidden;background:#FFF6E8">
+  <div ref="{{ barRef }}" style="position:fixed;top:0;left:0;height:6px;width:0;background:#111;z-index:60"></div>
+  <svg ref="{{ svgRef }}" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;overflow:visible">
+    <path ref="{{ basePathRef }}" d="" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 16" opacity="0.3"></path>
+    <path ref="{{ donePathRef }}" d="" fill="none" stroke="#111" stroke-width="5" stroke-linecap="round" opacity="0.55" style="mix-blend-mode:multiply"></path>
+  </svg>
+  <div ref="{{ markerRef }}" aria-hidden="true" style="position:absolute;left:0;top:0;z-index:5;pointer-events:none;will-change:transform">
+    <div style="transform:translate(-50%,-50%);position:relative">
+      <div style="width:16px;height:16px;background:#111;border-radius:50%;border:3px solid #FFF6E8;box-shadow:0 0 0 3px #111"></div>
+      <div ref="{{ hereLabelRef }}" style="position:absolute;left:50%;bottom:30px;transform:translateX(-50%) rotate(-4deg);background:#FF8A7A;border:3px solid #111;padding:4px 10px;font:700 11px 'Space Mono',monospace;box-shadow:3px 3px 0 #111;white-space:nowrap;opacity:0;transition:opacity .25s">YOU ARE HERE</div>
+    </div>
+  </div>
+
+  <div ref="{{ cursorRef }}" aria-hidden="true" style="position:fixed;left:0;top:0;z-index:100;pointer-events:none;opacity:0;transition:opacity .2s;will-change:transform">
+    <div ref="{{ dotRef }}" style="position:absolute;left:0;top:0;width:14px;height:14px;background:#111;border-radius:50%;box-shadow:0 0 0 2px #FFF6E8;transform:translate(-50%,-50%);transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s"></div>
+    <div ref="{{ labelRef }}" style="position:absolute;left:0;top:0;transform:translate(22px,-50%);opacity:0;transition:opacity .15s,transform .15s;background:#111;color:#FFF6E8;font:700 11px 'Space Mono',monospace;letter-spacing:.06em;padding:5px 9px;white-space:nowrap"></div>
+  </div>
+
+  <aside aria-label="Passport — camps visited" tabIndex="0" onMouseEnter="{{ openPassport }}" onMouseLeave="{{ closePassport }}" onFocus="{{ openPassport }}" onBlur="{{ closePassport }}" style="position:fixed;top:18px;right:18px;z-index:50;display:flex;flex-direction:column;gap:8px;align-items:flex-end;outline:none">
+    <div style="display:flex;gap:8px;align-items:center">
+      <button type="button" onClick="{{ toggleSound }}" aria-pressed="{{ soundOn }}" aria-label="Toggle sound effects" style="cursor:pointer;background:#FFF6E8;border:3px solid #111;box-shadow:3px 3px 0 #111;font:700 11px 'Space Mono',monospace;padding:6px 10px;min-height:36px;transition:transform .1s,box-shadow .1s" style-active="transform:translate(3px,3px);box-shadow:0 0 0 #111">{{ soundLabel }}</button>
+      <div style="background:#111;color:#FFF6E8;border:3px solid #111;font:700 11px 'Space Mono',monospace;padding:6px 10px;letter-spacing:.1em;min-height:36px;display:flex;align-items:center">PASSPORT {{ stampCount }}/{{ stampTotal }}</div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:260px;background:#FFF6E8;border:3px solid #111;box-shadow:4px 4px 0 #111;padding:8px;transition:opacity .2s,transform .2s;opacity:{{ passportOpacity }};transform:{{ passportTransform }};pointer-events:{{ passportPointer }}">
+      <sc-for list="{{ stamps }}" as="s" hint-placeholder-count="6">
+        <div title="{{ s.name }}" style="width:46px;height:46px;border-radius:50%;border:3px dashed #111;display:grid;place-items:center;background:{{ s.bgNow }};opacity:{{ s.op }};font:400 11px 'Archivo Black',sans-serif;text-align:center;line-height:1;transform:rotate(-6deg);animation:{{ s.anim }}">{{ s.short }}</div>
+      </sc-for>
+    </div>
+  </aside>
+
+  <nav aria-label="Primary" style="position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:0;background:#FFE566;border:3px solid #111;box-shadow:5px 5px 0 #111;font:700 13px 'Space Mono',monospace;letter-spacing:.04em">
+    <a href="#about" style="padding:12px 16px;text-decoration:none;border-right:3px solid #111;min-height:44px;display:flex;align-items:center" style-hover="background:#111;color:#FFE566">ABOUT</a>
+    <a href="#work" style="padding:12px 16px;text-decoration:none;border-right:3px solid #111;min-height:44px;display:flex;align-items:center" style-hover="background:#111;color:#FFE566">WORK</a>
+    <a href="#build" style="padding:12px 16px;text-decoration:none;border-right:3px solid #111;min-height:44px;display:flex;align-items:center" style-hover="background:#111;color:#FFE566">BUILD</a>
+    <a href="#contact" style="padding:12px 16px;text-decoration:none;min-height:44px;display:flex;align-items:center" style-hover="background:#111;color:#FFE566">CONTACT</a>
+  </nav>
+
+  <!-- 00 HERO -->
+  <header data-screen-label="Hero" style="position:relative;z-index:3;min-height:100vh;padding:clamp(24px,5vw,64px);display:grid;grid-template-rows:auto 1fr auto;background:#B8F2D0;border-bottom:4px solid #111;overflow:hidden">
+    <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 31px,rgba(17,17,17,.07) 31px 32px),repeating-linear-gradient(90deg,transparent 0 31px,rgba(17,17,17,.07) 31px 32px)"></div>
+    <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,transparent 40%,rgba(120,80,30,.18) 100%)"></div>
+    <div aria-hidden="true" style="position:absolute;left:clamp(16px,6vw,120px);bottom:clamp(90px,14vh,170px);width:clamp(90px,10vw,150px);animation:sail 1.8s cubic-bezier(.2,.8,.2,1) .2s both;pointer-events:none">
+      <div style="animation:bob 2.6s ease-in-out infinite">
+        <svg viewBox="0 0 120 110" style="display:block;width:100%;height:auto;overflow:visible">
+          <path d="M14 78 L106 78 L92 100 L28 100 Z" fill="#111"></path>
+          <path d="M58 78 L58 10" stroke="#111" stroke-width="5" stroke-linecap="round"></path>
+          <path d="M62 14 L104 66 L62 66 Z" fill="#FFF6E8" stroke="#111" stroke-width="4" stroke-linejoin="round"></path>
+          <path d="M54 22 L20 62 L54 62 Z" fill="#FF8A7A" stroke="#111" stroke-width="4" stroke-linejoin="round"></path>
+          <path d="M58 10 L80 16 L58 22 Z" fill="#FFE566" stroke="#111" stroke-width="3" stroke-linejoin="round"></path>
+          <path d="M0 104 Q 15 96 30 104 T 60 104 T 90 104 T 120 104" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" opacity=".7"></path>
+        </svg>
+      </div>
+      <div style="margin-top:8px;background:#FFF6E8;border:3px solid #111;padding:4px 8px;font:700 10px 'Space Mono',monospace;box-shadow:3px 3px 0 #111;transform:rotate(-3deg);white-space:nowrap;display:inline-block">S.S. SHIP-IT</div>
+    </div>
+    <div style="position:relative;display:flex;justify-content:flex-start;align-items:center;gap:16px;flex-wrap:wrap;padding-right:240px">
+      <div style="font:700 14px 'Space Mono',monospace;background:#FFF6E8;border:3px solid #111;padding:6px 12px;box-shadow:4px 4px 0 #111;white-space:nowrap">YASH.K <span style="color:#FF8A7A">●</span> status: shipping</div>
+    </div>
+    <div style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px;align-items:center;padding:48px 0">
+      <div>
+        <div style="display:inline-block;background:#FFB7D9;border:3px solid #111;padding:6px 14px;font:700 14px 'Space Mono',monospace;transform:rotate(-3deg);box-shadow:4px 4px 0 #111;margin-bottom:24px">MAP OF A SOFTWARE ENGINEER</div>
+        <h1 style="font:400 clamp(44px,8vw,120px)/0.92 'Archivo Black',sans-serif;margin:0 0 24px;letter-spacing:-.02em;text-wrap:balance">I BUILD<br>THINGS<br>THAT <span style="background:#FFE566;border:3px solid #111;padding:0 12px;box-shadow:6px 6px 0 #111;display:inline-block;transform:rotate(-2deg)">MOVE.</span></h1>
+        <p style="font:700 clamp(15px,1.6vw,20px)/1.4 'Space Grotesk',sans-serif;margin:0 0 32px">Software Engineer • Full-Stack Developer • Problem Solver</p>
+        <a href="#about" data-stop="0" style="position:relative;z-index:6;display:inline-flex;align-items:center;gap:12px;background:#111;color:#FFF6E8;text-decoration:none;font:700 16px 'Space Mono',monospace;padding:16px 24px;border:3px solid #111;box-shadow:6px 6px 0 #FF8A7A;transition:transform .1s,box-shadow .1s" style-hover="transform:translate(2px,2px);box-shadow:4px 4px 0 #FF8A7A;color:#FFF6E8" style-active="transform:translate(6px,6px);box-shadow:0 0 0 #FF8A7A">START EXPLORING <span style="display:inline-block;animation:bob 1.4s ease-in-out infinite">↓</span></a>
+      </div>
+      <div aria-label="Journey legend: idea to code to product to users" style="position:relative;background:#FFF6E8;border:4px solid #111;box-shadow:10px 10px 0 #111;padding:clamp(20px,3vw,36px);transform:rotate(1.5deg)">
+        <div style="font:700 12px 'Space Mono',monospace;letter-spacing:.1em;margin-bottom:16px;display:flex;justify-content:space-between;padding-right:64px"><span>LEGEND</span><span>FIG. 01</span></div>
+        <sc-for list="{{ legend }}" as="l" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:56px 1fr;gap:16px;align-items:center;padding:12px 0;border-top:3px dashed #111">
+            <div style="width:56px;height:56px;border:3px solid #111;display:grid;place-items:center;font:400 22px 'Archivo Black',sans-serif;background:{{ l.bg }};box-shadow:3px 3px 0 #111;transform:rotate({{ l.rot }}deg)">{{ l.n }}</div>
+            <div><div style="font:400 clamp(20px,2.4vw,30px) 'Archivo Black',sans-serif">{{ l.name }}</div><div style="font:500 14px 'Space Grotesk',sans-serif;opacity:.8">{{ l.sub }}</div></div>
+          </div>
+        </sc-for>
+        <div style="position:absolute;top:-34px;right:-30px;background:#FF8A7A;border:3px solid #111;border-radius:50%;width:72px;height:72px;display:grid;place-items:center;font:400 11px 'Archivo Black',sans-serif;text-align:center;transform:rotate(12deg);animation:wiggle 3s ease-in-out infinite">SCROLL<br>DRIVES<br>THIS</div>
+      </div>
+    </div>
+    <div style="position:relative;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:700 12px 'Space Mono',monospace;letter-spacing:.08em"><span style="opacity:.7">imyash2106@gmail.com</span><button type="button" onClick="{{ replayIntro }}" style="cursor:pointer;background:transparent;border:0;padding:0;font:inherit;text-decoration:underline;color:#111;min-height:44px">↻ REPLAY THE CHART</button><span style="opacity:.7">EST. SCROLL TIME: 4 MIN</span></div>
+  </header>
+
+  <!-- 01 ABOUT -->
+  <section id="about" data-screen-label="About" style="position:relative;z-index:3;overflow:hidden;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFF6E8">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:48px;align-items:start;max-width:1400px;margin:0 auto">
+      <div>
+        <div data-stop="1" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:64px;height:64px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#C9B8FF;font:400 22px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin-bottom:28px"><span style="transform:rotate(45deg)">01</span></div>
+        <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 12px">DESTINATION 01 — THE PERSON</p>
+        <div aria-hidden="true" style="position:absolute;right:clamp(8px,4vw,60px);top:18px;transform:rotate(8deg);font:700 13px 'Space Mono',monospace;display:flex;align-items:center;gap:6px;opacity:.85"><svg viewBox="0 0 60 30" width="60" height="30"><path d="M2 26 C 20 4, 38 4, 56 14" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 4"></path><path d="M48 8 L57 14 L47 18" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>the captain</div>
+        <h2 style="font:400 clamp(36px,5vw,72px)/1 'Archivo Black',sans-serif;margin:0 0 28px;letter-spacing:-.02em">HI, I'M YASH.<br>I SHIP SOFTWARE PEOPLE USE.</h2>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px">
+          <sc-for list="{{ likes }}" as="k" hint-placeholder-count="4">
+            <div data-reveal="" style="display:inline-flex;align-self:flex-start;background:{{ k.bg }};border:3px solid #111;padding:10px 18px;font:400 clamp(18px,2.2vw,28px) 'Archivo Black',sans-serif;box-shadow:5px 5px 0 #111;transform:rotate({{ k.rot }}deg)">{{ k.t }}</div>
+          </sc-for>
+        </div>
+        <p style="font:500 clamp(16px,1.4vw,19px)/1.55 'Space Grotesk',sans-serif;margin:0;max-width:56ch">Full-stack engineer: backends that hold up under load, frontends that feel instant, and the glue in between. I take the ugly problems and own the outcome — not just the ticket.</p>
+      </div>
+      <div data-reveal="" style="position:relative;transform:rotate(-1deg)">
+        <div style="background:#111;border:4px solid #111;box-shadow:10px 10px 0 #A9D8FF;padding:0">
+          <div style="display:flex;gap:8px;padding:12px 14px;border-bottom:3px solid #333;align-items:center">
+            <span style="width:14px;height:14px;border-radius:50%;background:#FF8A7A;border:2px solid #FFF6E8"></span><span style="width:14px;height:14px;border-radius:50%;background:#FFE566;border:2px solid #FFF6E8"></span><span style="width:14px;height:14px;border-radius:50%;background:#B8F2D0;border:2px solid #FFF6E8"></span>
+            <span style="margin-left:auto;font:700 12px 'Space Mono',monospace;color:#FFF6E8">yash@workspace — zsh</span>
+          </div>
+          <div style="padding:18px;font:400 14px/1.7 'Space Mono',monospace;color:#B8F2D0;min-height:280px;max-height:360px;overflow:auto" onClick="{{ focusTerm }}">
+            <sc-for list="{{ termLines }}" as="ln" hint-placeholder-count="3">
+              <div style="white-space:pre-wrap;color:{{ ln.c }}">{{ ln.t }}</div>
+            </sc-for>
+            <form onSubmit="{{ termSubmit }}" style="display:flex;gap:8px;align-items:center">
+              <span style="color:#FFE566">➜</span><span style="color:#A9D8FF">~</span>
+              <input ref="{{ termInputRef }}" value="{{ termInput }}" onChange="{{ termChange }}" aria-label="Terminal input, try typing help" placeholder="type `help`" style="flex:1;background:transparent;border:0;outline:0;color:#FFF6E8;font:400 14px 'Space Mono',monospace;min-height:28px">
+              <span style="width:9px;height:18px;background:#FFF6E8;animation:blink 1s step-end infinite"></span>
+            </form>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:-26px;left:-14px;background:#FFE566;border:3px solid #111;padding:8px 12px;font:700 12px 'Space Mono',monospace;box-shadow:4px 4px 0 #111;transform:rotate(-6deg)">real terminal — try `help`</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 SERVICES -->
+  <section id="services" data-screen-label="Services" style="position:relative;z-index:3;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFE566;border-top:4px solid #111;border-bottom:4px solid #111">
+    <div style="max-width:1400px;margin:0 auto">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:48px">
+        <div>
+          <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 12px">DESTINATION 02 — WHAT I CAN BUILD</p>
+          <h2 style="font:400 clamp(36px,5vw,80px)/0.95 'Archivo Black',sans-serif;margin:0;letter-spacing:-.02em">SIX STOPS<br>ON THE ROUTE.</h2>
+        </div>
+        <div data-stop="2" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:64px;height:64px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#FF8A7A;font:400 22px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 24px 12px 0"><span style="transform:rotate(45deg)">02</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:28px">
+        <sc-for list="{{ services }}" as="s" hint-placeholder-count="6">
+          <article data-reveal="" style="position:relative;background:#FFF6E8;border:3px solid #111;box-shadow:7px 7px 0 #111;padding:28px 24px 24px;transform:rotate({{ s.rot }}deg);transition:transform .15s" style-hover="transform:rotate(0deg) translate(-2px,-2px)">
+            <div style="position:absolute;top:-18px;left:18px;background:{{ s.bg }};border:3px solid #111;padding:4px 12px;font:400 20px 'Archivo Black',sans-serif;box-shadow:3px 3px 0 #111">{{ s.n }}</div>
+            <div style="position:absolute;top:-14px;right:-10px;width:34px;height:34px;background:#111;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"></div>
+            <h3 style="font:400 clamp(22px,2.2vw,30px)/1 'Archivo Black',sans-serif;margin:12px 0 12px">{{ s.name }}</h3>
+            <p style="font:500 15px/1.5 'Space Grotesk',sans-serif;margin:0 0 16px">{{ s.d }}</p>
+            <div style="font:700 12px 'Space Mono',monospace;border-top:3px dashed #111;padding-top:10px">{{ s.tag }}</div>
+          </article>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 PROJECT MAP -->
+  <section id="work" data-screen-label="Project map" style="position:relative;z-index:3;overflow:hidden;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFF6E8;border-top:4px solid #111">
+    <div style="max-width:1400px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:56px">
+        <div>
+          <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 12px">DESTINATIONS 03–05 — THE WORK, LIVE</p>
+          <h2 style="font:400 clamp(40px,7vw,110px)/0.9 'Archivo Black',sans-serif;margin:0;letter-spacing:-.03em">THREE CAMPS<br>ON THE TRAIL.</h2>
+          <div aria-hidden="true" style="margin-top:14px;font:700 12px 'Space Mono',monospace;display:inline-flex;align-items:center;gap:8px;transform:rotate(-2deg);opacity:.85"><svg viewBox="0 0 70 24" width="70" height="24"><path d="M2 12 C 20 2, 30 22, 48 12 S 62 8, 66 12" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"></path><path d="M58 6 L67 12 L58 18" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>here be live apps (not dragons)</div>
+        </div>
+        <p style="font:500 17px/1.5 'Space Grotesk',sans-serif;max-width:30ch;margin:0;background:#A9D8FF;border:3px solid #111;padding:16px 20px;box-shadow:6px 6px 0 #111;transform:rotate(1deg)">Each camp runs the real app. Peek through the viewfinder, or enter the full adventure.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:clamp(56px,8vw,120px);position:relative;isolation:isolate">
+        <sc-for list="{{ projects }}" as="p" hint-placeholder-count="3">
+          <article data-screen-label="{{ p.name }}" data-terrain="" style="align-self:{{ p.side }};width:min(100%,760px);position:relative;isolation:isolate">
+            <div aria-hidden="true" data-parallax="" style="position:absolute;inset:-80px -40vw -40px;z-index:-1;pointer-events:none;will-change:transform">{{ p.terrain }}</div>
+            <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:18px">
+              <div data-stop="{{ p.stop }}" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:64px;height:64px;border:3px solid #111;border-radius:50% 50% 50% 0;background:{{ p.bg }};font:400 14px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 12px"><span style="transform:rotate(45deg)">{{ p.n }}</span></div>
+              <div style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;background:#111;color:#FFF6E8;padding:6px 12px">CAMP {{ p.n }}</div>
+              <h3 style="font:400 clamp(30px,4vw,56px)/1 'Archivo Black',sans-serif;margin:0;letter-spacing:-.02em;flex-basis:100%">{{ p.name }}</h3>
+            </div>
+            <div data-reveal="" style="background:{{ p.bg }};border:4px solid #111;box-shadow:10px 10px 0 #111;transform:rotate({{ p.rot }}deg);padding:16px">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+                <span style="font:700 12px 'Space Mono',monospace;letter-spacing:.1em">VIEWFINDER — LIVE</span>
+                <a href="{{ p.url }}" target="_blank" rel="noopener" style="font:700 12px 'Space Mono',monospace;text-decoration:none;background:#FFF6E8;color:#111;border:3px solid #111;padding:6px 10px;min-height:36px;display:flex;align-items:center" style-hover="background:#111;color:#FFF6E8">OPEN ↗</a>
+              </div>
+              <a href="{{ p.url }}" target="_blank" rel="noopener" style="display:block;border:3px solid #111;background:#fff;overflow:hidden;text-decoration:none;color:#111;position:relative;height:clamp(220px,34vh,360px);background:repeating-linear-gradient(135deg,#f3ead9 0 14px,#FFF6E8 14px 28px)">
+                <div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:16px;gap:10px">
+                  <div style="font:400 clamp(22px,3vw,34px) 'Archivo Black',sans-serif;letter-spacing:-.01em">VISIT {{ p.name }} ↗</div>
+                  <div style="font:700 11px 'Space Mono',monospace;letter-spacing:.14em;opacity:.65">LIVE SITE · OPENS IN NEW TAB</div>
+                </div>
+              </a>
+              <p style="font:500 16px/1.45 'Space Grotesk',sans-serif;margin:16px 0 14px;text-wrap:pretty">{{ p.line }}</p>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+                <a href="{{ p.caseUrl }}" data-travel="{{ p.travel }}" style="text-decoration:none;font:700 14px 'Space Mono',monospace;background:#111;color:#FFF6E8;border:3px solid #111;padding:12px 18px;box-shadow:5px 5px 0 #FFF6E8;transition:transform .1s,box-shadow .1s" style-hover="transform:translate(2px,2px);box-shadow:3px 3px 0 #FFF6E8;color:#FFF6E8" style-active="transform:translate(5px,5px);box-shadow:0 0 0 #FFF6E8">ENTER THE ADVENTURE →</a>
+                <span style="font:700 12px 'Space Mono',monospace;margin-left:auto">{{ p.impact }}</span>
+              </div>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAYGROUNDS -->
+  <section data-screen-label="Playgrounds" style="position:relative;z-index:3;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFF6E8;border-top:4px solid #111">
+    <div style="max-width:1400px;margin:0 auto">
+      <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 12px">SIDE QUEST — TRY THE INTERNALS</p>
+      <h2 style="font:400 clamp(32px,4.5vw,64px)/1 'Archivo Black',sans-serif;margin:0 0 40px;letter-spacing:-.02em">TWO TINY MACHINES.</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:32px;align-items:start">
+        <div data-reveal="" style="background:#A9D8FF;border:4px solid #111;box-shadow:10px 10px 0 #111;padding:24px;transform:rotate(-0.8deg)">
+          <div style="font:400 24px 'Archivo Black',sans-serif;margin-bottom:4px">API PLAYGROUND</div>
+          <div style="font:700 12px 'Space Mono',monospace;margin-bottom:16px">simulated ApiForge request/response</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <select value="{{ apiMethod }}" onChange="{{ apiMethodChange }}" aria-label="HTTP method" style="font:700 14px 'Space Mono',monospace;border:3px solid #111;background:#FFF6E8;padding:10px;min-height:44px"><option>GET</option><option>POST</option><option>DELETE</option></select>
+            <input value="{{ apiPath }}" onChange="{{ apiPathChange }}" aria-label="Endpoint path" style="flex:1;min-width:160px;font:700 14px 'Space Mono',monospace;border:3px solid #111;background:#FFF6E8;padding:10px;min-height:44px">
+            <button type="button" onClick="{{ apiSend }}" style="cursor:pointer;font:700 14px 'Space Mono',monospace;border:3px solid #111;background:#111;color:#FFF6E8;padding:10px 18px;min-height:44px;box-shadow:4px 4px 0 #FF8A7A;transition:transform .1s,box-shadow .1s" style-active="transform:translate(4px,4px);box-shadow:0 0 0 #FF8A7A">SEND</button>
+          </div>
+          <pre style="margin:0;background:#111;color:#B8F2D0;border:3px solid #111;padding:16px;font:400 13px/1.6 'Space Mono',monospace;min-height:180px;overflow:auto;white-space:pre-wrap">{{ apiOut }}</pre>
+        </div>
+        <div data-reveal="" style="background:#FFB7D9;border:4px solid #111;box-shadow:10px 10px 0 #111;padding:24px;transform:rotate(0.8deg)">
+          <div style="font:400 24px 'Archivo Black',sans-serif;margin-bottom:4px">MOTION PLAYGROUND</div>
+          <div style="font:700 12px 'Space Mono',monospace;margin-bottom:16px">Veloce UI's enter choreography — pure CSS, 0 kB runtime</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <sc-for list="{{ motionPresets }}" as="mp" hint-placeholder-count="3">
+              <button type="button" data-preset="{{ mp.id }}" onClick="{{ pickMotion }}" style="cursor:pointer;font:700 13px 'Space Mono',monospace;border:3px solid #111;background:{{ mp.bg }};color:#111;padding:10px 14px;min-height:44px;box-shadow:3px 3px 0 #111;transition:transform .1s,box-shadow .1s" style-active="transform:translate(3px,3px);box-shadow:0 0 0 #111">{{ mp.label }}</button>
+            </sc-for>
+            <button type="button" onClick="{{ replayMotion }}" style="cursor:pointer;font:700 14px 'Space Mono',monospace;border:3px solid #111;background:#111;color:#FFF6E8;padding:10px 18px;min-height:44px;box-shadow:4px 4px 0 #FFE566;transition:transform .1s,box-shadow .1s;margin-left:auto" style-active="transform:translate(4px,4px);box-shadow:0 0 0 #FFE566">REPLAY ↻</button>
+          </div>
+          <div style="background:#111;border:3px solid #111;padding:20px;min-height:180px;display:flex;flex-direction:column;gap:12px;justify-content:center">{{ motionDemo }}</div>
+          <div style="font:700 12px 'Space Mono',monospace;margin-top:10px">{{ motionCaption }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 BUILD WITH ME -->
+  <section id="build" data-screen-label="Build with me" style="position:relative;z-index:3;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFB7D9;border-top:4px solid #111">
+    <div style="max-width:1400px;margin:0 auto">
+      <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:20px">
+        <div data-stop="6" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:64px;height:64px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#FFE566;font:400 22px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 20px 0 12px"><span style="transform:rotate(45deg)">06</span></div>
+        <div>
+          <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 8px">DESTINATION 06 — TRAVEL WITH ME</p>
+          <h2 style="font:400 clamp(36px,5vw,80px)/0.95 'Archivo Black',sans-serif;margin:0;letter-spacing:-.02em">PICK A ROUTE.<br>I'LL GIVE YOU THE DATES.</h2>
+        </div>
+      </div>
+      <p style="font:500 clamp(16px,1.4vw,19px)/1.5 'Space Grotesk',sans-serif;max-width:56ch;margin:0 0 32px">Pick a destination. Watch the route draw itself — day 0 to a realistic launch, a demo every week.</p>
+      <div role="tablist" aria-label="Route" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:36px">
+        <sc-for list="{{ offers }}" as="o" hint-placeholder-count="3">
+          <button type="button" role="tab" aria-selected="{{ o.selected }}" data-offer="{{ $index }}" onClick="{{ pickOffer }}" style="cursor:pointer;background:{{ o.tabBg }};color:{{ o.tabFg }};border:3px solid #111;box-shadow:{{ o.tabShadow }};padding:12px 18px;font:400 clamp(15px,1.6vw,20px) 'Archivo Black',sans-serif;min-height:44px;transform:rotate({{ o.rot }}deg);transition:transform .1s,box-shadow .1s,background .15s" style-active="transform:translate(4px,4px);box-shadow:0 0 0 #111">{{ o.name }} <span style="font:700 11px 'Space Mono',monospace;margin-left:8px">{{ o.eta }}</span></button>
+        </sc-for>
+      </div>
+      <div data-reveal="" style="background:#FFF6E8;border:4px solid #111;box-shadow:12px 12px 0 #111;padding:clamp(20px,3vw,36px);position:relative;overflow:hidden">
+        <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(17,17,17,.06) 27px 28px),repeating-linear-gradient(90deg,transparent 0 27px,rgba(17,17,17,.06) 27px 28px)"></div>
+        <div style="position:relative;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <h3 style="font:400 clamp(28px,3.4vw,48px)/1 'Archivo Black',sans-serif;margin:0 0 8px">{{ offer.name }}</h3>
+            <p style="font:500 16px/1.5 'Space Grotesk',sans-serif;margin:0;max-width:52ch">{{ offer.d }}</p>
+          </div>
+          <div style="font:700 12px 'Space Mono',monospace;background:#111;color:#FFF6E8;padding:8px 12px;transform:rotate(2deg)">{{ offer.stack }}</div>
+        </div>
+        <div style="position:relative">{{ plannerSvg }}</div>
+        <ol style="position:relative;list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:14px">
+          <sc-for list="{{ offer.steps }}" as="ms" hint-placeholder-count="5">
+            <li data-planner-step="{{ $index }}" style="opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s cubic-bezier(.2,.8,.2,1)">
+              <div style="font:700 11px 'Space Mono',monospace;background:{{ offer.bg }};border:2px solid #111;padding:3px 8px;display:inline-block;margin-bottom:6px">{{ ms.day }}</div>
+              <div style="font:700 15px 'Space Grotesk',sans-serif">{{ ms.t }}</div>
+              <div style="font:500 13px/1.4 'Space Grotesk',sans-serif;opacity:.8">{{ ms.s }}</div>
+            </li>
+          </sc-for>
+        </ol>
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:48px">
+        <a href="mailto:imyash2106@gmail.com?subject=Let's%20map%20a%20project" data-bottle="MAP MY PROJECT." style="text-decoration:none;font:700 15px 'Space Mono',monospace;background:#111;color:#FFF6E8;border:3px solid #111;padding:16px 24px;box-shadow:6px 6px 0 #FF8A7A;transition:transform .1s,box-shadow .1s" style-hover="transform:translate(2px,2px);box-shadow:4px 4px 0 #FF8A7A;color:#FFF6E8" style-active="transform:translate(6px,6px);box-shadow:0 0 0 #FF8A7A">MAP MY PROJECT →</a>
+        <p style="font:700 12px 'Space Mono',monospace;margin:0;opacity:.75">// dates confirmed in a 30-min scoping call before day 0.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 EXPERIENCE -->
+  <section id="experience" data-screen-label="Experience" style="position:relative;z-index:3;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFC9A3;border-top:4px solid #111">
+    <div style="max-width:1400px;margin:0 auto">
+      <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:48px">
+        <div data-stop="7" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:64px;height:64px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#FFE566;font:400 22px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 20px 0 12px"><span style="transform:rotate(45deg)">07</span></div>
+        <div>
+          <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 8px">DESTINATION 07 — THE ROUTE SO FAR</p>
+          <h2 style="font:400 clamp(36px,5vw,80px)/0.95 'Archivo Black',sans-serif;margin:0;letter-spacing:-.02em">2022 → NOW.</h2>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:24px">
+        <sc-for list="{{ milestones }}" as="m" hint-placeholder-count="4">
+          <article data-reveal="" style="background:#FFF6E8;border:3px solid #111;box-shadow:7px 7px 0 #111;padding:24px;transform:rotate({{ m.rot }}deg)">
+            <div style="font:400 clamp(40px,5vw,64px)/1 'Archivo Black',sans-serif;letter-spacing:-.03em;margin-bottom:12px">{{ m.year }}</div>
+            <div style="display:inline-block;background:{{ m.bg }};border:3px solid #111;padding:4px 10px;font:700 12px 'Space Mono',monospace;margin-bottom:12px">{{ m.role }}</div>
+            <div style="font:700 18px 'Space Grotesk',sans-serif;margin-bottom:8px">{{ m.org }}</div>
+            <p style="margin:0 0 12px;font:500 15px/1.5 'Space Grotesk',sans-serif">{{ m.what }}</p>
+            <div style="font:700 12px 'Space Mono',monospace;border-top:3px dashed #111;padding-top:10px">{{ m.tech }}</div>
+          </article>
+        </sc-for>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- 06 PHILOSOPHY -->
+  <section data-screen-label="Philosophy" style="position:relative;z-index:3;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#111;color:#FFF6E8;border-top:4px solid #111">
+    <div style="max-width:1400px;margin:0 auto">
+      <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:40px">
+        <div data-stop="8" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:64px;height:64px;border:3px solid #FFF6E8;border-radius:50% 50% 50% 0;background:#FF8A7A;color:#111;font:400 22px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #FFF6E8;margin:0 20px 0 12px"><span style="transform:rotate(45deg)">08</span></div>
+        <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0;color:#FFE566">DESTINATION 08 — HOW I THINK ABOUT SOFTWARE</p>
+        <div aria-hidden="true" style="margin-left:auto;font:700 12px 'Space Mono',monospace;color:#FFF6E8;opacity:.7;display:inline-flex;align-items:center;gap:8px;transform:rotate(3deg)"><svg viewBox="0 0 44 44" width="40" height="40"><ellipse cx="22" cy="22" rx="19" ry="15" fill="none" stroke="#FFE566" stroke-width="2.5" stroke-dasharray="5 4" transform="rotate(-8 22 22)"></ellipse></svg>circled for a reason</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <sc-for list="{{ beliefs }}" as="b" hint-placeholder-count="5">
+          <div data-reveal="" style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap;border-bottom:3px dashed #444;padding:18px 0">
+            <span style="font:700 14px 'Space Mono',monospace;color:{{ b.c }}">{{ b.n }}</span>
+            <span style="font:400 clamp(26px,4.5vw,64px)/1 'Archivo Black',sans-serif;letter-spacing:-.02em">{{ b.t }}</span>
+                      </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 FINAL -->
+  <section id="contact" data-screen-label="Contact" style="position:relative;z-index:3;min-height:100vh;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px) 140px;background:#FFE566;border-top:4px solid #111;display:grid;place-items:center;text-align:center">
+    <div style="max-width:1100px">
+      <div data-stop="11" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:84px;height:84px;border:4px solid #111;border-radius:50% 50% 50% 0;background:#FF8A7A;font:400 14px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:5px 5px 0 #111;margin-bottom:40px"><span style="transform:rotate(45deg)">END</span></div>
+      <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 20px">FINAL DESTINATION — YOU MADE IT</p>
+      <h2 style="font:400 clamp(48px,10vw,160px)/0.9 'Archivo Black',sans-serif;margin:0;letter-spacing:-.03em">HAVE AN<br>IDEA?</h2>
+      <h2 style="font:400 clamp(48px,10vw,160px)/0.9 'Archivo Black',sans-serif;margin:16px 0 12px;letter-spacing:-.03em"><span style="background:#111;color:#FFE566;padding:0 24px;display:inline-block;transform:rotate(-2deg);box-shadow:10px 10px 0 #FF8A7A">LET'S BUILD IT.</span></h2>
+      <div ref="{{ underlineRef }}" aria-hidden="true" style="position:relative;height:56px;margin:0 auto 24px;max-width:900px">{{ underlineSvg }}</div>
+      <p style="font:700 clamp(17px,2vw,24px)/1.4 'Space Grotesk',sans-serif;margin:0 auto 40px;max-width:40ch">Tell me what you're building. I'll help turn the idea into something real.</p>
+      <div aria-hidden="true" style="display:inline-flex;align-items:center;gap:8px;font:700 12px 'Space Mono',monospace;margin-bottom:20px;transform:rotate(-2deg);opacity:.85"><svg viewBox="0 0 60 24" width="60" height="24"><path d="M2 20 C 18 2, 40 2, 56 12" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 4"></path><path d="M47 6 L57 12 L47 17" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>your message travels by bottle</div>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+        <a href="mailto:imyash2106@gmail.com?subject=Let's%20build%20something" data-bottle="LET'S BUILD IT." style="text-decoration:none;font:700 16px 'Space Mono',monospace;background:#111;color:#FFF6E8;border:3px solid #111;padding:18px 26px;box-shadow:6px 6px 0 #FF8A7A;transition:transform .1s,box-shadow .1s" style-hover="transform:translate(2px,2px);box-shadow:4px 4px 0 #FF8A7A;color:#FFF6E8" style-active="transform:translate(6px,6px);box-shadow:0 0 0 #FF8A7A">START A PROJECT →</a>
+        <a href="mailto:imyash2106@gmail.com" data-bottle="HELLO, YASH." style="text-decoration:none;font:700 16px 'Space Mono',monospace;background:#FFF6E8;color:#111;border:3px solid #111;padding:18px 26px;box-shadow:6px 6px 0 #111;transition:transform .1s,box-shadow .1s" style-hover="transform:translate(2px,2px);box-shadow:4px 4px 0 #111;color:#111" style-active="transform:translate(6px,6px);box-shadow:0 0 0 #111">EMAIL ME →</a>
+        <a href="#work" style="text-decoration:none;font:700 16px 'Space Mono',monospace;background:#C9B8FF;color:#111;border:3px solid #111;padding:18px 26px;box-shadow:6px 6px 0 #111;transition:transform .1s,box-shadow .1s" style-hover="transform:translate(2px,2px);box-shadow:4px 4px 0 #111;color:#111" style-active="transform:translate(6px,6px);box-shadow:0 0 0 #111">VIEW MY WORK →</a>
+      </div>
+      <div style="margin-top:72px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;font:700 13px 'Space Mono',monospace">
+        <a href="mailto:imyash2106@gmail.com">imyash2106@gmail.com</a>
+        <a href="https://github.com/YashKesh" target="_blank" rel="noopener">github.com/YashKesh</a>
+        <span style="opacity:.6">404: boring portfolio not found</span>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;liveEmbeds&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Projects&quot;}}">
+class Component extends DCLogic {
+  state = { skill: 'React', termLines: [
+    { t: 'console.log("hello world");', c: '#FFF6E8' }, { t: '→ hello world', c: '#B8F2D0' },
+    { t: '$ whoami', c: '#FFF6E8' }, { t: 'yash — software engineer, full-stack, ships on fridays (tested)', c: '#B8F2D0' } ],
+    termInput: '', apiMethod: 'GET', apiPath: '/v1/users/42', apiOut: '// press SEND',
+    motion: 'stagger', motionKey: 0, offer: 0, plannerKey: 0, visited: [], soundOn: false, passportOpen: false };
+  rootRef = React.createRef(); svgRef = React.createRef(); basePathRef = React.createRef(); donePathRef = React.createRef();
+  markerRef = React.createRef(); barRef = React.createRef(); termInputRef = React.createRef(); cursorRef = React.createRef(); dotRef = React.createRef(); labelRef = React.createRef(); underlineRef = React.createRef(); hereLabelRef = React.createRef();
+
+  skillsData = {
+    Java: ['Backend services that need to be boringly reliable.', 'Spring Boot APIs, JVM tuning, concurrency with executors and CompletableFuture.', 'ApiForge'],
+    Python: ['Fast iteration: scripts, data plumbing, Django apps.', 'Django + DRF for CRUD-heavy products, Celery for background jobs.', 'Veloce UI'],
+    'C++': ['When latency is the feature.', 'Algorithms, memory layout, competitive programming muscle.', 'personal tooling'],
+    TypeScript: ['Every frontend and most Node services.', 'Strict mode on, zod at the boundaries, types as documentation.', 'NotchIsland'],
+    JavaScript: ['The runtime underneath everything on the web.', 'Event loop, performance profiling, bundle diets.', 'all three'],
+    React: ['Interfaces that feel instant.', 'Hooks, Suspense, careful memoisation — and knowing when not to.', 'NotchIsland'],
+    Django: ['Products that need auth, admin and an ORM on day one.', 'DRF, custom middleware, Postgres-backed models with real indexes.', 'Veloce UI'],
+    'Spring Boot': ['Production Java APIs.', 'Layered services, validation, OpenAPI docs, actuator metrics.', 'ApiForge'],
+    PostgreSQL: ['The default database — relational, sane, fast.', 'Query plans, partial indexes, JSONB when it earns its place.', 'ApiForge'],
+    Redis: ['Caching, rate limits, pub/sub.', 'Cache-aside patterns, TTL discipline, Lua for atomic ops.', 'ApiForge'],
+    Kafka: ['Decoupling services with events.', 'Partitioning strategy, idempotent consumers, replay for recovery.', 'event pipelines'],
+    Docker: ['Same environment everywhere.', 'Multi-stage builds, compose for local, slim images for prod.', 'all three'],
+    Azure: ['Hosting and managed services.', 'App Service, Blob storage, Azure Postgres, pipelines in CI.', 'codeloomdevv.co.in'],
+    'REST APIs': ['The contract between frontend and backend.', 'Resource design, versioning, pagination, honest error bodies.', 'ApiForge'],
+    WebSockets: ['Live updates without polling.', 'Presence, reconnect/backoff, backpressure on the server.', 'NotchIsland']
+  };
+
+  pickSkill = (e) => { const n = e.currentTarget.getAttribute('data-skill'); if (n && n !== this.state.skill) this.setState({ skill: n }); };
+  focusTerm = () => { this.termInputRef.current && this.termInputRef.current.focus(); };
+  termChange = (e) => this.setState({ termInput: e.target.value });
+  termSubmit = (e) => {
+    e.preventDefault(); const cmd = this.state.termInput.trim(); if (!cmd) return;
+    const map = {
+      help: 'commands: whoami · skills · projects · contact · sail <place> · clear · sudo hire-me',
+      whoami: 'yash kesharwani — software engineer. builds web apps, APIs, full-stack products.',
+      skills: 'java python c++ typescript react django spring-boot postgres redis kafka docker azure electron',
+      projects: 'notchisland · apiforge · veloce-ui  → scroll down, they are live',
+      contact: 'imyash2106@gmail.com · github.com/YashKesh',
+      'sudo hire-me': '[sudo] permission granted. opening mail client...',
+      ls: 'ideas/  code/  products/  users/', pwd: '/home/yash/journey',
+      sail: 'usage: sail <notchisland|apiforge|veloce|build>'
+    };
+    const m = cmd.toLowerCase().match(/^sail\s+(\w+)/);
+    if (m) { const dest = { notchisland: ['Case NotchIsland.html', 'notch'], notch: ['Case NotchIsland.html', 'notch'], apiforge: ['Case ApiForge.html', 'apiforge'], veloce: ['Case VeloceUI.html', 'veloce'], veloceui: ['Case VeloceUI.html', 'veloce'], build: ['#build', 'build'] }[m[1]];
+      if (dest) { this.setState(s => ({ termLines: [...s.termLines, { t: '$ ' + cmd, c: '#FFF6E8' }, { t: `⛵ setting sail for ${m[1]}…`, c: '#FFE566' }], termInput: '' })); this.travel && this.travel.go(dest[0], dest[1]); return; } }
+    let out = map[cmd.toLowerCase()];
+    if (cmd.toLowerCase() === 'clear') { this.setState({ termLines: [], termInput: '' }); return; }
+    if (cmd.toLowerCase() === 'sudo hire-me') setTimeout(() => { location.href = 'mailto:imyash2106@gmail.com'; }, 600);
+    if (!out) out = `zsh: command not found: ${cmd}  (try \`help\`)`;
+    this.setState(s => ({ termLines: [...s.termLines, { t: '$ ' + cmd, c: '#FFF6E8' }, { t: out, c: out.startsWith('zsh') ? '#FF8A7A' : '#B8F2D0' }], termInput: '' }));
+  };
+  apiMethodChange = (e) => this.setState({ apiMethod: e.target.value });
+  apiPathChange = (e) => this.setState({ apiPath: e.target.value });
+  apiSend = () => {
+    const { apiMethod: m, apiPath: p } = this.state; const t0 = performance.now();
+    this.setState({ apiOut: `> ${m} ${p}\n> sending…` });
+    setTimeout(() => {
+      const id = (p.match(/\d+/) || ['1'])[0]; const ms = (performance.now() - t0).toFixed(0);
+      const bodies = {
+        GET: { status: 200, body: { id: +id, name: 'Yash Kesharwani', role: 'engineer', shipping: true } },
+        POST: { status: 201, body: { id: +id + 1, created: new Date().toISOString() } },
+        DELETE: { status: 204, body: null }
+      };
+      const r = bodies[m]; const cached = m === 'GET' && Math.random() > .5;
+      this.setState({ apiOut: `HTTP/1.1 ${r.status}\nx-response-time: ${ms}ms\nx-cache: ${cached ? 'HIT (redis)' : 'MISS'}\ncontent-type: application/json\n\n${r.body ? JSON.stringify(r.body, null, 2) : '(no content)'}` });
+    }, 220 + Math.random() * 300);
+  };
+  STAMPS = [{ id: 1, name: 'The Person', short: 'YOU', bg: '#C9B8FF' }, { id: 2, name: 'Services', short: 'SVC', bg: '#FF8A7A' }, { id: 3, name: 'NotchIsland', short: 'NI', bg: '#A9D8FF' }, { id: 4, name: 'ApiForge', short: 'AF', bg: '#FFB7D9' }, { id: 5, name: 'Veloce UI', short: 'VU', bg: '#C9B8FF' }, { id: 6, name: 'Build', short: 'GO', bg: '#FFE566' }, { id: 7, name: 'Experience', short: '22→', bg: '#FFC9A3' }, { id: 8, name: 'Philosophy', short: 'WHY', bg: '#B8F2D0' }];
+  offersData() { return [
+        { name: 'SAAS PRODUCT', eta: 'DAY 0 → WEEK 6', bg: '#FFE566', rot: -0.8, d: 'Auth, billing, and the one workflow customers pay for. Deployed and yours.', stack: 'react · spring boot / django · postgres · stripe · azure', steps: [{ day: 'DAY 0', t: 'Kickoff & scope', s: 'User stories, data model, what v1 is NOT.' }, { day: 'DAY 3', t: 'Clickable prototype', s: 'Every screen, no backend — you react early.' }, { day: 'WK 2', t: 'Walking skeleton', s: 'Login → core flow → DB, deployed to staging.' }, { day: 'WK 4', t: 'Feature-complete beta', s: 'Billing, emails, admin. Real users invited.' }, { day: 'WK 6', t: 'Launch', s: 'Monitoring, backups, handover docs, 2 weeks of fixes included.' }] },
+        { name: 'AI FEATURES', eta: 'DAY 0 → WEEK 3', bg: '#C9B8FF', rot: 0.8, d: 'An LLM in your product where it earns its keep — search, summaries, extraction, assistants.', stack: 'llm apis · embeddings · rag · evals · your stack', steps: [{ day: 'DAY 0', t: 'Use-case audit', s: 'Pick the 1–2 features with real payoff; define success.' }, { day: 'DAY 2', t: 'Prompt + eval harness', s: 'A test set before a single UI pixel.' }, { day: 'WK 1', t: 'Working feature behind a flag', s: 'Streaming responses, cost ceilings, fallbacks.' }, { day: 'WK 2', t: 'Quality pass', s: 'RAG tuning, latency, hallucination checks on real data.' }, { day: 'WK 3', t: 'Rollout', s: 'Gradual release, usage + cost dashboards.' }] },
+        { name: 'UTILITY APP', eta: 'DAY 0 → WEEK 2', bg: '#A9D8FF', rot: -0.5, d: 'One tool, one job, done brilliantly — web, desktop or internal.', stack: 'typescript · react · electron · local-first', steps: [{ day: 'DAY 0', t: 'Define the one job', s: 'Inputs, outputs, edge cases on a single page.' }, { day: 'DAY 2', t: 'Ugly-but-working build', s: 'Core logic done; you try it on real data.' }, { day: 'WK 1', t: 'Polish & performance', s: 'Keyboard-first, fast, reduced-motion aware.' }, { day: 'WK 2', t: 'Ship', s: 'Installer or hosted URL, update path, README.' }] }
+      ]; }
+  pickOffer = (e) => { const i = +e.currentTarget.getAttribute('data-offer'); this.setState(s => ({ offer: i, plannerKey: s.plannerKey + 1 }), () => this.animatePlanner()); };
+  animatePlanner() {
+    const root = this.rootRef.current; if (!root) return;
+    const path = root.querySelector('[data-planner-path]'); const steps = [...root.querySelectorAll('[data-planner-step]')]; const pins = [...root.querySelectorAll('[data-planner-pin]')];
+    if (path) { const len = path.getTotalLength(); path.style.transition = 'none'; path.style.strokeDasharray = `${len} ${len}`; path.style.strokeDashoffset = len; path.getBoundingClientRect(); path.style.transition = this.reduced ? 'none' : 'stroke-dashoffset 1.4s cubic-bezier(.3,.8,.3,1)'; path.style.strokeDashoffset = 0; }
+    pins.forEach((p, i) => { p.style.transition = 'none'; p.style.opacity = '0'; p.style.transform = 'scale(.4)'; p.getBoundingClientRect(); p.style.transition = this.reduced ? 'none' : 'opacity .3s, transform .4s cubic-bezier(.2,.8,.2,1)'; setTimeout(() => { p.style.opacity = '1'; p.style.transform = 'scale(1)'; }, this.reduced ? 0 : 200 + i * 260); });
+    steps.forEach((el, i) => { el.style.opacity = '0'; el.style.transform = 'translateY(12px)'; setTimeout(() => { el.style.opacity = '1'; el.style.transform = 'none'; }, this.reduced ? 0 : 260 + i * 260); });
+  }
+  plannerSvg(offer) {
+    const n = offer.steps.length, W = 1000, H = 150, xs = offer.steps.map((_, i) => 60 + (W - 120) * i / (n - 1)), ys = offer.steps.map((_, i) => 75 + (i % 2 ? 30 : -30));
+    let d = `M ${xs[0]} ${ys[0]}`; for (let i = 1; i < n; i++) { const cx = (xs[i - 1] + xs[i]) / 2; d += ` C ${cx} ${ys[i - 1]}, ${cx} ${ys[i]}, ${xs[i]} ${ys[i]}`; }
+    const h = React.createElement;
+    return h('svg', { key: this.state.plannerKey, viewBox: `0 0 ${W} ${H}`, style: { display: 'block', width: '100%', height: 'auto', overflow: 'visible' } },
+      h('path', { d, fill: 'none', stroke: '#111', strokeWidth: 3, strokeDasharray: '2 10', strokeLinecap: 'round', opacity: .35 }),
+      h('path', { 'data-planner-path': '', d, fill: 'none', stroke: '#111', strokeWidth: 5, strokeLinecap: 'round' }),
+      offer.steps.map((s, i) => h('g', { key: i, 'data-planner-pin': '', style: { transformOrigin: `${xs[i]}px ${ys[i]}px`, transformBox: 'view-box' } },
+        h('path', { d: `M ${xs[i] - 9} ${ys[i] - 9} L ${xs[i] + 9} ${ys[i] + 9} M ${xs[i] + 9} ${ys[i] - 9} L ${xs[i] - 9} ${ys[i] + 9}`, stroke: i === n - 1 ? '#9B2222' : '#111', strokeWidth: i === n - 1 ? 7 : 5, strokeLinecap: 'round' }),
+        h('text', { x: xs[i], y: ys[i] + (i % 2 ? 34 : -22), textAnchor: 'middle', style: { font: "700 13px 'Space Mono',monospace", fill: '#111' } }, s.day))));
+  }
+  underlineSvg() {
+    const h = React.createElement, d = this.state.trailD || 'M 10 28 C 150 0, 300 56, 450 28 S 750 0, 890 28';
+    return h('svg', { viewBox: '0 0 900 56', preserveAspectRatio: 'none', style: { display: 'block', width: '100%', height: '100%', overflow: 'visible' } },
+      h('path', { d, fill: 'none', stroke: '#111', strokeWidth: 3, strokeDasharray: '2 10', strokeLinecap: 'round', opacity: .35 }),
+      h('path', { 'data-underline': '', d, fill: 'none', stroke: '#111', strokeWidth: 6, strokeLinecap: 'round', style: this.underDrawn ? {} : { strokeDasharray: '4000 4000', strokeDashoffset: 4000 } }));
+  }
+  terrain(kind) {
+    const h = React.createElement, s = { display: 'block', width: '100%', height: '100%', overflow: 'visible' };
+    if (kind === 'island') return h('svg', { viewBox: '0 0 800 500', preserveAspectRatio: 'none', style: s }, h('path', { d: 'M -40 420 Q 120 380 260 430 T 560 420 T 860 440 L 860 520 L -40 520 Z', fill: '#A9D8FF', opacity: .55 }), h('path', { d: 'M 40 470 Q 200 440 360 480 T 760 470', fill: 'none', stroke: '#111', strokeWidth: 3, strokeLinecap: 'round', opacity: .5 }), h('path', { d: 'M 600 120 l 0 -70 M 600 50 q 30 -10 50 10 M 600 50 q -30 -10 -50 10 M 600 50 q 10 -30 40 -30 M 600 50 q -10 -30 -40 -30', fill: 'none', stroke: '#111', strokeWidth: 4, strokeLinecap: 'round', opacity: .7 }));
+    if (kind === 'forge') return h('svg', { viewBox: '0 0 800 500', preserveAspectRatio: 'none', style: s }, h('path', { d: 'M -40 460 L 120 300 L 260 420 L 420 240 L 560 400 L 700 280 L 860 440 L 860 520 L -40 520 Z', fill: '#FFC9A3', opacity: .6 }), h('path', { d: 'M 420 240 L 450 160 L 470 240', fill: 'none', stroke: '#111', strokeWidth: 3, strokeLinejoin: 'round', opacity: .6 }), h('circle', { cx: 460, cy: 120, r: 14, fill: '#FF8A7A', stroke: '#111', strokeWidth: 3, opacity: .8 }), h('circle', { cx: 490, cy: 90, r: 9, fill: '#FFE566', stroke: '#111', strokeWidth: 3, opacity: .7 }));
+    return h('svg', { viewBox: '0 0 800 500', preserveAspectRatio: 'none', style: s }, h('path', { d: 'M 40 120 q 60 -40 120 0 t 120 0 t 120 0', fill: 'none', stroke: '#111', strokeWidth: 4, strokeLinecap: 'round', opacity: .4 }), h('path', { d: 'M 300 260 q 60 -40 120 0 t 120 0 t 120 0', fill: 'none', stroke: '#111', strokeWidth: 4, strokeLinecap: 'round', opacity: .3 }), h('path', { d: 'M -40 440 Q 200 400 400 450 T 860 430 L 860 520 L -40 520 Z', fill: '#C9B8FF', opacity: .5 }));
+  }
+  replayIntro = () => { import('./journey.js').then(m => { this.intro = m.attachIntro({ onDone: () => { this.build(); this.update(); } }); }); };
+  openPassport = () => this.setState({ passportOpen: true }); closePassport = () => this.setState({ passportOpen: false });
+  toggleSound = () => this.setState(s => ({ soundOn: !s.soundOn }), () => { window.__journeySound = this.state.soundOn; if (this.state.soundOn) this.sfx('stamp'); });
+  sfx(kind) {
+    if (!this.state.soundOn) return; try {
+      const ctx = this.actx || (this.actx = new (window.AudioContext || window.webkitAudioContext)()); const t = ctx.currentTime;
+      if (kind === 'stamp') { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'square'; o.frequency.setValueAtTime(180, t); o.frequency.exponentialRampToValueAtTime(60, t + .09); g.gain.setValueAtTime(.18, t); g.gain.exponentialRampToValueAtTime(.001, t + .12); o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + .13); }
+      else { const buf = ctx.createBuffer(1, ctx.sampleRate * .7, ctx.sampleRate), ch = buf.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / ch.length, 2) * .5; const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); src.buffer = buf; f.type = 'bandpass'; f.frequency.value = 1800; f.Q.value = .6; g.gain.value = .35; src.connect(f).connect(g).connect(ctx.destination); src.start(t); }
+    } catch (err) {}
+  }
+  pickMotion = (e) => this.setState(s => ({ motion: e.currentTarget.getAttribute('data-preset'), motionKey: s.motionKey + 1 }));
+  replayMotion = () => this.setState(s => ({ motionKey: s.motionKey + 1 }));
+  motionDemo() {
+    const cfg = { press: { dur: 120, ease: 'cubic-bezier(.2,0,0,1)', stagger: 0 }, lift: { dur: 200, ease: 'cubic-bezier(.2,.8,.2,1)', stagger: 0 }, stagger: { dur: 320, ease: 'cubic-bezier(.2,.8,.2,1)', stagger: 40 } }[this.state.motion];
+    const h = React.createElement, k = this.state.motionKey, anim = (i) => ({ animation: `enter ${cfg.dur}ms ${cfg.ease} ${i * cfg.stagger}ms both` });
+    return h('div', { key: k, style: { display: 'flex', flexDirection: 'column', gap: 12 } },
+      h('div', { style: { ...anim(0), background: '#1d1d1f', border: '2px solid #444', borderRadius: 12, padding: '12px 16px', color: '#FFF6E8', fontFamily: "'Space Grotesk',sans-serif", display: 'flex', gap: 10, alignItems: 'center' } },
+        h('span', { style: { width: 10, height: 10, borderRadius: '50%', background: '#B8F2D0' } }), h('div', null, h('div', { style: { fontWeight: 700 } }, 'Deploy succeeded'), h('div', { style: { fontSize: 13, opacity: .7 } }, 'main · 42s · 3 routes revalidated'))),
+      h('div', { style: { display: 'flex', gap: 8, flexWrap: 'wrap' } }, ['Beta', 'Live', 'Draft', 'v1.0'].map((t, i) => h('span', { key: t, style: { ...anim(i + 1), border: '2px solid #666', borderRadius: 999, padding: '4px 12px', color: '#FFF6E8', fontFamily: "'Space Mono',monospace", fontSize: 12 } }, t))));
+  }
+
+  componentDidMount() {
+    console.log('%c👋 hello, curious one. yes, the route is one SVG path driven by scroll. type `help` in the terminal.', 'font-family:monospace;background:#FFE566;color:#111;padding:4px 8px;border:2px solid #111');
+    this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.onScroll = () => { if (this.raf) return; this.raf = requestAnimationFrame(() => { this.raf = 0; this.update(); }); };
+    this.onResize = () => { clearTimeout(this.rt); this.rt = setTimeout(() => { this.build(); this.update(); }, 120); };
+    addEventListener('scroll', this.onScroll, { passive: true }); addEventListener('resize', this.onResize);
+    this.io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { const el = en.target; el.style.opacity = '1'; el.style.transform = el.dataset.rot || ''; this.io.unobserve(el); } }), { threshold: .15 });
+    this.setupReveals();
+    this.ro = new ResizeObserver(this.onResize); this.ro.observe(this.rootRef.current);
+    setTimeout(() => { this.build(); this.update(); }, 50);
+    import('./journey.js').then(m => { this.cursor = m.attachCursor({ cursor: this.cursorRef, dot: this.dotRef, label: this.labelRef }); this.travel = m.attachTravel({ here: 'map', onUnroll: () => this.sfx('unroll') }); this.bottle = m.attachBottle({ onSplash: k => this.sfx(k === 'cork' ? 'stamp' : 'unroll') }); this.intro = m.attachIntro({ onDone: () => { this.build(); this.update(); } }); });
+    this.stampIO = new IntersectionObserver(es => es.forEach(en => { if (!en.isIntersecting) return; const id = +en.target.getAttribute('data-stop'); if (id >= 1 && id <= 8 && !this.state.visited.includes(id)) { this.setState(s => ({ visited: [...s.visited, id], passportOpen: true })); this.sfx('stamp'); clearTimeout(this.ppT); this.ppT = setTimeout(() => this.setState({ passportOpen: false }), 1600); } }), { threshold: .9 });
+    this.rootRef.current.querySelectorAll('[data-stop]').forEach(el => this.stampIO.observe(el));
+    this.underIO = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting && !this.underDrawn) { const p = this.rootRef.current.querySelector('[data-underline]'); if (!p) return; this.underDrawn = true; const len = p.getTotalLength(); p.style.transition = 'none'; p.style.strokeDasharray = `${len} ${len}`; p.style.strokeDashoffset = len; p.getBoundingClientRect(); p.style.transition = this.reduced ? 'none' : 'stroke-dashoffset 1.6s cubic-bezier(.3,.8,.3,1)'; p.style.strokeDashoffset = 0; } }), { threshold: .2 });
+    const contact = this.rootRef.current.querySelector('#contact'); contact && this.underIO.observe(contact);
+    setTimeout(() => this.animatePlanner(), 400);
+  }
+  componentDidUpdate() { this.setupReveals(); }
+  componentWillUnmount() { this.intro && this.intro.destroy(); this.bottle && this.bottle.destroy(); this.stampIO && this.stampIO.disconnect(); this.underIO && this.underIO.disconnect(); this.cursor && this.cursor.destroy(); this.travel && this.travel.destroy(); removeEventListener('scroll', this.onScroll); removeEventListener('resize', this.onResize); this.io && this.io.disconnect(); this.ro && this.ro.disconnect(); }
+  setupReveals() {
+    const root = this.rootRef.current; if (!root) return;
+    root.querySelectorAll('[data-reveal]:not([data-rv])').forEach(el => {
+      el.dataset.rv = '1'; if (this.reduced) return;
+      const base = el.style.transform || ''; el.dataset.rot = base;
+      el.style.transition = 'opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1)'; el.style.opacity = '0'; el.style.transform = base + ' translateY(28px)';
+      this.io.observe(el);
+    });
+  }
+  build() {
+    const root = this.rootRef.current, svg = this.svgRef.current; if (!root || !svg) return;
+    const rb = root.getBoundingClientRect(); const W = root.offsetWidth, H = root.offsetHeight;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const stops = [...root.querySelectorAll('[data-stop]')].map(el => { const b = el.getBoundingClientRect(); return { x: b.left + b.width / 2 - rb.left, y: b.top + b.height / 2 - rb.top }; }).sort((a, b) => a.y - b.y);
+    if (stops.length < 2) return;
+    let d = `M ${stops[0].x} ${stops[0].y}`;
+    for (let i = 1; i < stops.length; i++) {
+      const a = stops[i - 1], b = stops[i], dy = (b.y - a.y) * .5, cl = x => Math.max(40, Math.min(W - 40, x));
+      const sa = a.x < W / 2 ? 1 : -1, sb = b.x < W / 2 ? 1 : -1, sw = Math.min(W * .2, 200);
+      d += ` C ${cl(a.x + sa * sw)} ${a.y + dy}, ${cl(b.x + sb * sw)} ${b.y - dy}, ${b.x} ${b.y}`;
+    }
+    this.basePathRef.current.setAttribute('d', d); const done = this.donePathRef.current; done.setAttribute('d', d);
+    this.len = done.getTotalLength(); done.style.strokeDasharray = `${this.len} ${this.len}`; this.H = H; this.rootTop = rb.top + scrollY;
+    // squash the walked trail into a 900×56 underline path (x from progress, y from the trail's sideways wander)
+    const N = 40, pts = []; for (let i = 0; i <= N; i++) { const p = done.getPointAtLength(this.len * i / N); pts.push({ x: 10 + 880 * i / N, y: 28 + ((p.x / W) - .5) * 44 }); }
+    let ud = `M ${pts[0].x} ${pts[0].y}`; for (let i = 1; i < pts.length; i++) ud += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
+    if (ud !== this.state.trailD) this.setState({ trailD: ud });
+    this.terrains = [...root.querySelectorAll('[data-parallax]')].map(el => ({ el, top: el.parentElement.getBoundingClientRect().top - rb.top }));
+  }
+  update() {
+    if (!this.len) return; const done = this.donePathRef.current, bar = this.barRef.current, mk = this.markerRef.current;
+    const prog = Math.max(0, Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)));
+    bar.style.width = (prog * 100).toFixed(2) + '%';
+    const lbl = this.hereLabelRef.current; if (lbl) { lbl.style.opacity = '1'; clearTimeout(this.lblT); this.lblT = setTimeout(() => { lbl.style.opacity = '0'; }, 900); }
+    if (this.terrains && !this.reduced) { const vc = scrollY + innerHeight / 2 - this.rootTop; this.terrains.forEach(t => { const dy = (vc - t.top) * .12; t.el.style.transform = `translateY(${dy.toFixed(1)}px)`; }); }
+    const targetY = scrollY + innerHeight * .45 - this.rootTop; let lo = 0, hi = this.len, L = 0;
+    for (let i = 0; i < 22; i++) { const mid = (lo + hi) / 2; const pt = done.getPointAtLength(mid); if (pt.y < targetY) lo = mid; else hi = mid; L = mid; }
+    const p0 = done.getPointAtLength(0), pN = done.getPointAtLength(this.len);
+    if (targetY <= p0.y) L = 0; if (targetY >= pN.y) L = this.len;
+    done.style.strokeDashoffset = this.len - L; const pt = done.getPointAtLength(L);
+    const mx = Math.max(70, Math.min(this.rootRef.current.offsetWidth - 70, pt.x));
+    mk.style.transform = `translate(${mx}px, ${pt.y}px)`; mk.style.opacity = L > 4 ? '1' : '0';
+  }
+
+  renderVals() {
+    const liveEmbeds = this.props.liveEmbeds ?? true;
+    const offersRaw = this.offersData(); const offer = offersRaw[this.state.offer];
+    const offers = offersRaw.map((o, i) => ({ ...o, selected: i === this.state.offer, tabBg: i === this.state.offer ? '#111' : o.bg, tabFg: i === this.state.offer ? '#FFF6E8' : '#111', tabShadow: i === this.state.offer ? '5px 5px 0 #FF8A7A' : '5px 5px 0 #111' }));
+    const stamps = this.STAMPS.map(s => { const got = this.state.visited.includes(s.id); return { ...s, bgNow: got ? s.bg : 'transparent', op: got ? 1 : .35, anim: got && !this.reduced ? 'stampIn .5s cubic-bezier(.2,.8,.2,1) both' : 'none' }; });
+    return {
+      offers, offer, pickOffer: this.pickOffer, plannerSvg: this.plannerSvg(offer), underlineRef: this.underlineRef, hereLabelRef: this.hereLabelRef, underlineSvg: this.underlineSvg(),
+      stamps, stampCount: this.state.visited.length, stampTotal: this.STAMPS.length, toggleSound: this.toggleSound, soundOn: this.state.soundOn, openPassport: this.openPassport, replayIntro: this.replayIntro, closePassport: this.closePassport, passportOpacity: this.state.passportOpen ? 1 : 0, passportTransform: this.state.passportOpen ? 'none' : 'translateY(-6px)', passportPointer: this.state.passportOpen ? 'auto' : 'none', soundLabel: this.state.soundOn ? 'SFX ON' : 'SFX OFF',
+      rootRef: this.rootRef, svgRef: this.svgRef, basePathRef: this.basePathRef, donePathRef: this.donePathRef, markerRef: this.markerRef, barRef: this.barRef, termInputRef: this.termInputRef, cursorRef: this.cursorRef, dotRef: this.dotRef, labelRef: this.labelRef,
+      liveEmbeds, noEmbeds: !liveEmbeds,
+      legend: [{ n: '1', name: 'IDEA', sub: 'a problem worth solving', bg: '#FFE566', rot: -3 }, { n: '2', name: 'CODE', sub: 'typed, tested, reviewed', bg: '#A9D8FF', rot: 2 }, { n: '3', name: 'PRODUCT', sub: 'deployed and measurable', bg: '#FFB7D9', rot: -2 }, { n: '4', name: 'USERS', sub: 'the only metric that matters', bg: '#FF8A7A', rot: 3 }],
+      likes: [{ t: 'I LIKE COMPLEX PROBLEMS.', bg: '#FFE566', rot: -1.5 }, { t: 'I LIKE FAST SYSTEMS.', bg: '#A9D8FF', rot: 1 }, { t: 'I LIKE GOOD UI.', bg: '#FFB7D9', rot: -0.8 }, { t: 'I LIKE SHIPPING.', bg: '#B8F2D0', rot: 1.6 }],
+      termLines: this.state.termLines, termInput: this.state.termInput, termChange: this.termChange, termSubmit: this.termSubmit, focusTerm: this.focusTerm,
+      services: [
+        { n: '01', name: 'WEB APPLICATIONS', d: 'Fast React/TypeScript frontends — dashboards, tools, portals.', tag: 'react · ts · vite', bg: '#FFB7D9', rot: -1 },
+        { n: '02', name: 'BACKEND & APIs', d: 'Spring Boot or Django services with clean contracts and real observability.', tag: 'spring · django · postgres', bg: '#A9D8FF', rot: 1 },
+        { n: '03', name: 'FULL-STACK PRODUCTS', d: 'Idea to deployed product. One engineer, whole outcome.', tag: 'end to end', bg: '#B8F2D0', rot: -0.6 },
+        { n: '04', name: 'SYSTEM DESIGN', d: 'Events, caches, queues — designed for the load you will have.', tag: 'kafka · redis · docker', bg: '#C9B8FF', rot: 0.8 },
+        { n: '05', name: 'PERFORMANCE OPTIMIZATION', d: 'Find the 20% causing 80% of the slowness. Fix it.', tag: 'p95 down, revenue up', bg: '#FFC9A3', rot: -1.2 },
+        { n: '06', name: 'AI-POWERED PRODUCTS', d: 'LLM features that are useful, bounded and cheap to run.', tag: 'llm · embeddings · evals', bg: '#FF8A7A', rot: 1.1 }
+      ],
+      projects: [
+        { n: '01', stop: 3, side: 'flex-start', terrain: this.terrain('island'), name: 'NOTCHISLAND', caseUrl: 'Case NotchIsland.html', travel: 'notch', repo: 'https://github.com/YashKesh', line: 'The MacBook notch, turned into a 168 pt band of tools: shelf, now-playing, focus, weather, battery — fourteen tiles, one row.', url: 'https://notchisland.codeloomdevv.co.in/', bg: '#A9D8FF', rot: -0.6, problem: 'The notch is dead space; every app that fills it covers your document.', build: 'One rule — width, not depth. Three states, a drag-and-drop shelf, keyboard-first.', stack: 'Swift · macOS · TypeScript · React (site)', impact: '14 tiles · 168 pt', impactSub: 'Nothing launches a window. Everything opens inside the same band.' },
+        { n: '02', stop: 4, side: 'flex-end', terrain: this.terrain('forge'), name: 'APIFORGE', caseUrl: 'Case ApiForge.html', travel: 'apiforge', repo: 'https://github.com/YashKesh', line: 'The API client that weighs nothing — local-first, Claude built in, collections and scoped variables in a 24 MB binary.', url: 'https://apiforge.codeloomdevv.co.in/', bg: '#FFB7D9', rot: 0.6, problem: 'API clients got heavy: sign-ups, sync, 400 MB installs, secrets in the cloud.', build: 'Electron on a diet. Typed, scoped variables; masked secrets; Claude writes the runner scripts.', stack: 'TypeScript · React · Electron · Claude API', impact: '24 MB · 92 ms', impactSub: 'Install size and cold start. No sign-up, no cloud sync required.' },
+        { n: '03', stop: 5, side: 'flex-start', terrain: this.terrain('wind'), name: 'VELOCE UI', caseUrl: 'Case VeloceUI.html', travel: 'veloce', repo: 'https://github.com/YashKesh/Veloce-UI', line: 'Accessible React components with signature motion built in — every transition pure CSS, nothing shipped to the client but your UI.', url: 'https://veloceui.codeloomdevv.co.in/', bg: '#C9B8FF', rot: -0.4, problem: 'Motion is either missing from component kits or costs 60 kB of library.', build: 'Tokens → motion → 36 components + 13 charts. Choreography as CSS custom properties.', stack: 'TypeScript · React · CSS · Storybook · npm', impact: '0 kB runtime', impactSub: '36 primitives + 13 charts, WCAG 2.2 AA across the board.' }
+      ],
+      apiMethod: this.state.apiMethod, apiPath: this.state.apiPath, apiOut: this.state.apiOut, apiMethodChange: this.apiMethodChange, apiPathChange: this.apiPathChange, apiSend: this.apiSend,
+      motionPresets: [{ id: 'press', label: 'press 120ms', bg: '#FFE566' }, { id: 'lift', label: 'lift 200ms', bg: '#A9D8FF' }, { id: 'stagger', label: 'stagger 40ms', bg: '#B8F2D0' }], pickMotion: this.pickMotion, replayMotion: this.replayMotion, motionDemo: this.motionDemo(),
+      motionCaption: { press: 'press · 120ms · ease-out — buttons and chips', lift: 'lift · 200ms · swift-out — cards and toasts', stagger: 'stagger · 40ms per child · 320ms — lists and badges' }[this.state.motion],
+      milestones: [
+        { year: '2022', role: 'STUDENT → BUILDER', org: 'First real projects', what: 'Learned by shipping. Many broken deploys.', tech: 'python · django · git', bg: '#FFE566', rot: -1 },
+        { year: '2023', role: 'INTERN / FREELANCE', org: 'Backend & APIs', what: 'REST services for small clients; first on-call night.', tech: 'java · spring boot · postgres', bg: '#A9D8FF', rot: 0.8 },
+        { year: '2024', role: 'SOFTWARE ENGINEER', org: 'Full-stack products', what: 'Shipped ApiForge and Veloce UI; Kafka pipelines; React end to end.', tech: 'react · kafka · redis · docker', bg: '#FFB7D9', rot: -0.6 },
+        { year: 'NOW', role: 'FREELANCE ENGINEER', org: 'codeloomdevv.co.in', what: 'Web apps, APIs and AI products for clients who want it built properly.', tech: 'you decide', bg: '#B8F2D0', rot: 1 }
+      ],
+      beliefs: [
+        { n: '01', t: 'PERFORMANCE MATTERS.', s: 'Every 100ms is a user who left.', c: '#FFE566' }, { n: '02', t: 'GOOD ARCHITECTURE SCALES.', s: 'Boundaries first, frameworks second.', c: '#FFB7D9' },
+        { n: '03', t: 'SHIP → MEASURE → IMPROVE.', s: 'Opinions are cheap; logs are not.', c: '#A9D8FF' }, { n: '04', t: 'SIMPLE SYSTEMS ARE POWERFUL.', s: 'Fewer moving parts, fewer 3am pages.', c: '#B8F2D0' },
+        { n: '05', t: 'UX IS PART OF ENGINEERING.', s: 'If users can\'t use it, it doesn\'t work.', c: '#FF8A7A' }
+      ],
+      steps: [
+        { n: '01', name: 'DISCOVER', d: 'Understand the idea, the users and what "done" means.', bg: '#FFE566', rot: -1 }, { n: '02', name: 'DESIGN', d: 'Define the solution: data, API, screens, risks.', bg: '#FFB7D9', rot: 0.8 },
+        { n: '03', name: 'BUILD', d: 'Write the software in small, demoable increments.', bg: '#A9D8FF', rot: -0.6 }, { n: '04', name: 'TEST', d: 'Break it before users do. Load it, fuzz it, review it.', bg: '#C9B8FF', rot: 1 },
+        { n: '05', name: 'SHIP', d: 'Put it into the real world with CI/CD and monitoring.', bg: '#FFC9A3', rot: -0.8 }, { n: '06', name: 'IMPROVE', d: 'Measure, iterate, and keep it fast.', bg: '#FF8A7A', rot: 0.6 }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
+
