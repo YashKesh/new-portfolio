@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 html{scroll-behavior:smooth}
-body{margin:0;background:#FFF6E8;color:#111;font-family:'Space Grotesk',sans-serif;-webkit-font-smoothing:antialiased}
+body{margin:0;background:#7FBDE8;color:#111;font-family:'Space Grotesk',sans-serif;-webkit-font-smoothing:antialiased}
 *{box-sizing:border-box}
 a{color:#111}a:hover{color:#FF8A7A}
 @keyframes wiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
@@ -25,23 +25,21 @@ a{color:#111}a:hover{color:#FF8A7A}
 @keyframes sail{0%{transform:translate(-140%,30px) rotate(-6deg);opacity:0}60%{opacity:1}100%{transform:translate(0,0) rotate(0)}}
 @keyframes stampIn{0%{transform:scale(2.2) rotate(-14deg);opacity:0}60%{transform:scale(.92) rotate(-6deg);opacity:1}100%{transform:scale(1) rotate(-6deg)}}
 @keyframes drawDash{to{stroke-dashoffset:0}}
+@keyframes waveDrift{from{transform:translateX(-14px)}to{transform:translateX(14px)}}
+@keyframes cloudDrift{from{transform:translateX(0)}to{transform:translateX(160px)}}
+@keyframes shipBob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(5px) rotate(1.5deg)}}
 @keyframes enter{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
 </style>
 </helmet>
-<div ref="{{ rootRef }}" style="position:relative;overflow:hidden;background:#FFF6E8">
+<div ref="{{ rootRef }}" style="position:relative">
   <div ref="{{ barRef }}" style="position:fixed;top:0;left:0;height:6px;width:0;background:#111;z-index:60"></div>
-  <svg ref="{{ svgRef }}" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;overflow:visible">
-    <path ref="{{ basePathRef }}" d="" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 16" opacity="0.3"></path>
-    <path ref="{{ donePathRef }}" d="" fill="none" stroke="#111" stroke-width="5" stroke-linecap="round" opacity="0.55" style="mix-blend-mode:multiply"></path>
-  </svg>
-  <div ref="{{ markerRef }}" aria-hidden="true" style="position:absolute;left:0;top:0;z-index:5;pointer-events:none;will-change:transform">
-    <div style="transform:translate(-50%,-50%);position:relative">
-      <div style="width:16px;height:16px;background:#111;border-radius:50%;border:3px solid #FFF6E8;box-shadow:0 0 0 3px #111"></div>
-      <div ref="{{ hereLabelRef }}" style="position:absolute;left:50%;bottom:30px;transform:translateX(-50%) rotate(-4deg);background:#FF8A7A;border:3px solid #111;padding:4px 10px;font:700 11px 'Space Mono',monospace;box-shadow:3px 3px 0 #111;white-space:nowrap;opacity:0;transition:opacity .25s">YOU ARE HERE</div>
-    </div>
+  <div ref="{{ worldRef }}" aria-hidden="true" style="position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(#8FC7EE 0%,#EAF6FF 45%,#3F7FC7 46%,#3F7FC7 100%)">
+    <div ref="{{ stageRef }}" style="position:absolute;left:0;top:0;width:7600px;height:2400px;transform-origin:0 0;will-change:transform"></div>
+    <div ref="{{ cloudsRef }}" style="position:absolute;left:0;top:0;width:7600px;height:2400px;transform-origin:0 0;will-change:transform;pointer-events:none"></div>
+    <div ref="{{ tintRef }}" style="position:absolute;inset:0;background:#FF8A7A;mix-blend-mode:multiply;opacity:0;pointer-events:none"></div>
+    <div style="position:absolute;inset:0;box-shadow:inset 0 0 180px 40px rgba(20,40,70,.35);pointer-events:none"></div>
   </div>
-
   <div ref="{{ cursorRef }}" aria-hidden="true" style="position:fixed;left:0;top:0;z-index:100;pointer-events:none;opacity:0;transition:opacity .2s;will-change:transform">
     <div ref="{{ dotRef }}" style="position:absolute;left:0;top:0;width:14px;height:14px;background:#111;border-radius:50%;box-shadow:0 0 0 2px #FFF6E8;transform:translate(-50%,-50%);transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s"></div>
     <div ref="{{ labelRef }}" style="position:absolute;left:0;top:0;transform:translate(22px,-50%);opacity:0;transition:opacity .15s,transform .15s;background:#111;color:#FFF6E8;font:700 11px 'Space Mono',monospace;letter-spacing:.06em;padding:5px 9px;white-space:nowrap"></div>
@@ -59,6 +57,8 @@ a{color:#111}a:hover{color:#FF8A7A}
     </div>
   </aside>
 
+  <div ref="{{ scrollHintRef }}" aria-hidden="true" style="position:fixed;left:50%;bottom:88px;transform:translateX(-50%);z-index:49;opacity:0;transition:opacity .5s;pointer-events:none;display:{{ hintDisplay }}"><div style="background:#111;color:#FFE566;border:3px solid #FFE566;box-shadow:5px 5px 0 #FF8A7A;padding:10px 16px;font:400 16px 'Archivo Black',sans-serif;letter-spacing:.06em;display:flex;gap:10px;align-items:center;white-space:nowrap">SCROLL TO EXPLORE <span style="display:inline-block;animation:bob 1.4s ease-in-out infinite">↓</span></div></div>
+
   <nav aria-label="Primary" style="position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:0;background:#FFE566;border:3px solid #111;box-shadow:5px 5px 0 #111;font:700 13px 'Space Mono',monospace;letter-spacing:.04em">
     <a href="#about" style="padding:12px 16px;text-decoration:none;border-right:3px solid #111;min-height:44px;display:flex;align-items:center" style-hover="background:#111;color:#FFE566">ABOUT</a>
     <a href="#work" style="padding:12px 16px;text-decoration:none;border-right:3px solid #111;min-height:44px;display:flex;align-items:center" style-hover="background:#111;color:#FFE566">WORK</a>
@@ -67,30 +67,16 @@ a{color:#111}a:hover{color:#FF8A7A}
   </nav>
 
   <!-- 00 HERO -->
-  <header data-screen-label="Hero" style="position:relative;z-index:3;min-height:100vh;padding:clamp(24px,5vw,64px);display:grid;grid-template-rows:auto 1fr auto;background:#B8F2D0;border-bottom:4px solid #111;overflow:hidden">
-    <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 31px,rgba(17,17,17,.07) 31px 32px),repeating-linear-gradient(90deg,transparent 0 31px,rgba(17,17,17,.07) 31px 32px)"></div>
-    <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,transparent 40%,rgba(120,80,30,.18) 100%)"></div>
-    <div aria-hidden="true" style="position:absolute;left:clamp(16px,6vw,120px);bottom:clamp(90px,14vh,170px);width:clamp(90px,10vw,150px);animation:sail 1.8s cubic-bezier(.2,.8,.2,1) .2s both;pointer-events:none">
-      <div style="animation:bob 2.6s ease-in-out infinite">
-        <svg viewBox="0 0 120 110" style="display:block;width:100%;height:auto;overflow:visible">
-          <path d="M14 78 L106 78 L92 100 L28 100 Z" fill="#111"></path>
-          <path d="M58 78 L58 10" stroke="#111" stroke-width="5" stroke-linecap="round"></path>
-          <path d="M62 14 L104 66 L62 66 Z" fill="#FFF6E8" stroke="#111" stroke-width="4" stroke-linejoin="round"></path>
-          <path d="M54 22 L20 62 L54 62 Z" fill="#FF8A7A" stroke="#111" stroke-width="4" stroke-linejoin="round"></path>
-          <path d="M58 10 L80 16 L58 22 Z" fill="#FFE566" stroke="#111" stroke-width="3" stroke-linejoin="round"></path>
-          <path d="M0 104 Q 15 96 30 104 T 60 104 T 90 104 T 120 104" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" opacity=".7"></path>
-        </svg>
-      </div>
-      <div style="margin-top:8px;background:#FFF6E8;border:3px solid #111;padding:4px 8px;font:700 10px 'Space Mono',monospace;box-shadow:3px 3px 0 #111;transform:rotate(-3deg);white-space:nowrap;display:inline-block">S.S. SHIP-IT</div>
-    </div>
-    <div style="position:relative;display:flex;justify-content:flex-start;align-items:center;gap:16px;flex-wrap:wrap;padding-right:240px">
+  <header data-island="0" data-screen-label="Hero" style="position:relative;z-index:3;min-height:100vh;padding:clamp(24px,5vw,64px);display:grid;grid-template-rows:auto 1fr auto">
+    <div data-hero="" style="position:relative;display:flex;justify-content:flex-start;align-items:center;gap:16px;flex-wrap:wrap;padding-right:240px">
       <div style="font:700 14px 'Space Mono',monospace;background:#FFF6E8;border:3px solid #111;padding:6px 12px;box-shadow:4px 4px 0 #111;white-space:nowrap">YASH.K <span style="color:#FF8A7A">●</span> status: shipping</div>
     </div>
-    <div style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px;align-items:center;padding:48px 0">
-      <div>
+    <div data-hero="" style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px;align-items:center;padding:48px 0">
+      <div style="background:#FFF6E8;border:4px solid #111;box-shadow:10px 10px 0 #111;padding:clamp(20px,3vw,36px);transform:rotate(-1deg)">
         <div style="display:inline-block;background:#FFB7D9;border:3px solid #111;padding:6px 14px;font:700 14px 'Space Mono',monospace;transform:rotate(-3deg);box-shadow:4px 4px 0 #111;margin-bottom:24px">MAP OF A SOFTWARE ENGINEER</div>
         <h1 style="font:400 clamp(44px,8vw,120px)/0.92 'Archivo Black',sans-serif;margin:0 0 24px;letter-spacing:-.02em;text-wrap:balance">I BUILD<br>THINGS<br>THAT <span style="background:#FFE566;border:3px solid #111;padding:0 12px;box-shadow:6px 6px 0 #111;display:inline-block;transform:rotate(-2deg)">MOVE.</span></h1>
-        <p style="font:700 clamp(15px,1.6vw,20px)/1.4 'Space Grotesk',sans-serif;margin:0 0 32px">Software Engineer • Full-Stack Developer • Problem Solver</p>
+        <p style="font:700 clamp(15px,1.6vw,20px)/1.4 'Space Grotesk',sans-serif;margin:0 0 12px">Software Engineer • Full-Stack Developer • Problem Solver</p>
+        <p style="font:500 15px/1.5 'Space Grotesk',sans-serif;margin:0 0 28px;opacity:.85">The ship just made harbor. Scroll, and it sails on — six islands, one voyage.</p>
         <a href="#about" data-stop="0" style="position:relative;z-index:6;display:inline-flex;align-items:center;gap:12px;background:#111;color:#FFF6E8;text-decoration:none;font:700 16px 'Space Mono',monospace;padding:16px 24px;border:3px solid #111;box-shadow:6px 6px 0 #FF8A7A;transition:transform .1s,box-shadow .1s" style-hover="transform:translate(2px,2px);box-shadow:4px 4px 0 #FF8A7A;color:#FFF6E8" style-active="transform:translate(6px,6px);box-shadow:0 0 0 #FF8A7A">START EXPLORING <span style="display:inline-block;animation:bob 1.4s ease-in-out infinite">↓</span></a>
       </div>
       <div aria-label="Journey legend: idea to code to product to users" style="position:relative;background:#FFF6E8;border:4px solid #111;box-shadow:10px 10px 0 #111;padding:clamp(20px,3vw,36px);transform:rotate(1.5deg)">
@@ -104,11 +90,12 @@ a{color:#111}a:hover{color:#FF8A7A}
         <div style="position:absolute;top:-34px;right:-30px;background:#FF8A7A;border:3px solid #111;border-radius:50%;width:72px;height:72px;display:grid;place-items:center;font:400 11px 'Archivo Black',sans-serif;text-align:center;transform:rotate(12deg);animation:wiggle 3s ease-in-out infinite">SCROLL<br>DRIVES<br>THIS</div>
       </div>
     </div>
-    <div style="position:relative;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:700 12px 'Space Mono',monospace;letter-spacing:.08em"><span style="opacity:.7">imyash2106@gmail.com</span><button type="button" onClick="{{ replayIntro }}" style="cursor:pointer;background:transparent;border:0;padding:0;font:inherit;text-decoration:underline;color:#111;min-height:44px">↻ REPLAY THE CHART</button><span style="opacity:.7">EST. SCROLL TIME: 4 MIN</span></div>
+    <div data-hero="" style="position:relative;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:700 12px 'Space Mono',monospace;letter-spacing:.08em;background:#FFF6E8;border:3px solid #111;padding:10px 14px;box-shadow:4px 4px 0 #111"><span style="opacity:.7">imyash2106@gmail.com</span><button type="button" onClick="{{ replayIntro }}" style="cursor:pointer;background:transparent;border:0;padding:0;font:inherit;text-decoration:underline;color:#111;min-height:44px">↻ REPLAY THE CHART</button><span style="opacity:.7">EST. SCROLL TIME: 4 MIN</span></div>
   </header>
 
   <!-- 01 ABOUT -->
-  <section id="about" data-screen-label="About" style="position:relative;z-index:3;overflow:hidden;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFF6E8">
+  <div data-voyage="" style="position:relative;z-index:3;height:160vh;display:grid;place-items:center;pointer-events:none"><div style="background:#FFF6E8;border:3px solid #111;padding:8px 14px;font:700 12px 'Space Mono',monospace;letter-spacing:.08em;box-shadow:4px 4px 0 #111;transform:rotate(-2deg)">NEXT STOP → CAPTAIN'S QUAY</div></div>
+  <section data-island="1" id="about" data-screen-label="About" style="position:relative;z-index:3;overflow:hidden;padding:clamp(40px,6vw,88px) clamp(24px,4vw,56px);background:#FFF6E8;width:min(100% - 24px,1400px);margin:0 auto 28px;border:4px solid #111;box-shadow:12px 12px 0 #111">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:48px;align-items:start;max-width:1400px;margin:0 auto">
       <div>
         <div data-stop="1" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:64px;height:64px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#C9B8FF;font:400 22px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin-bottom:28px"><span style="transform:rotate(45deg)">01</span></div>
@@ -145,7 +132,8 @@ a{color:#111}a:hover{color:#FF8A7A}
   </section>
 
   <!-- 02 SERVICES -->
-  <section id="services" data-screen-label="Services" style="position:relative;z-index:3;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFE566;border-top:4px solid #111;border-bottom:4px solid #111">
+  <div data-voyage="" style="position:relative;z-index:3;height:160vh;display:grid;place-items:center;pointer-events:none"><div style="background:#FFF6E8;border:3px solid #111;padding:8px 14px;font:700 12px 'Space Mono',monospace;letter-spacing:.08em;box-shadow:4px 4px 0 #111;transform:rotate(-2deg)">NEXT STOP → SIX STOPS ATOLL</div></div>
+  <section data-island="2" id="services" data-screen-label="Services" style="position:relative;z-index:3;padding:clamp(40px,6vw,88px) clamp(24px,4vw,56px);background:#FFE566;width:min(100% - 24px,1400px);margin:0 auto 28px;border:4px solid #111;box-shadow:12px 12px 0 #111">
     <div style="max-width:1400px;margin:0 auto">
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:48px">
         <div>
@@ -169,7 +157,8 @@ a{color:#111}a:hover{color:#FF8A7A}
   </section>
 
   <!-- 03 PROJECT MAP -->
-  <section id="work" data-screen-label="Project map" style="position:relative;z-index:3;overflow:hidden;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFF6E8;border-top:4px solid #111">
+  <div data-voyage="" style="position:relative;z-index:3;height:160vh;display:grid;place-items:center;pointer-events:none"><div style="background:#FFF6E8;border:3px solid #111;padding:8px 14px;font:700 12px 'Space Mono',monospace;letter-spacing:.08em;box-shadow:4px 4px 0 #111;transform:rotate(-2deg)">NEXT STOP → ISLE OF SHIPPED THINGS</div></div>
+  <section data-island="3" id="work" data-screen-label="Project map" style="position:relative;z-index:3;overflow:hidden;padding:clamp(40px,6vw,88px) clamp(24px,4vw,56px);background:#FFF6E8;width:min(100% - 24px,1400px);margin:0 auto 28px;border:4px solid #111;box-shadow:12px 12px 0 #111">
     <div style="max-width:1400px;margin:0 auto">
       <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:56px">
         <div>
@@ -182,7 +171,6 @@ a{color:#111}a:hover{color:#FF8A7A}
       <div style="display:flex;flex-direction:column;gap:clamp(56px,8vw,120px);position:relative;isolation:isolate">
         <sc-for list="{{ projects }}" as="p" hint-placeholder-count="3">
           <article data-screen-label="{{ p.name }}" data-terrain="" style="align-self:{{ p.side }};width:min(100%,760px);position:relative;isolation:isolate">
-            <div aria-hidden="true" data-parallax="" style="position:absolute;inset:-80px -40vw -40px;z-index:-1;pointer-events:none;will-change:transform">{{ p.terrain }}</div>
             <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:18px">
               <div data-stop="{{ p.stop }}" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:64px;height:64px;border:3px solid #111;border-radius:50% 50% 50% 0;background:{{ p.bg }};font:400 14px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 12px"><span style="transform:rotate(45deg)">{{ p.n }}</span></div>
               <div style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;background:#111;color:#FFF6E8;padding:6px 12px">CAMP {{ p.n }}</div>
@@ -194,11 +182,11 @@ a{color:#111}a:hover{color:#FF8A7A}
                 <a href="{{ p.url }}" target="_blank" rel="noopener" style="font:700 12px 'Space Mono',monospace;text-decoration:none;background:#FFF6E8;color:#111;border:3px solid #111;padding:6px 10px;min-height:36px;display:flex;align-items:center" style-hover="background:#111;color:#FFF6E8">OPEN ↗</a>
               </div>
               <a href="{{ p.url }}" target="_blank" rel="noopener" style="display:block;border:3px solid #111;background:#fff;overflow:hidden;text-decoration:none;color:#111;position:relative;height:clamp(220px,34vh,360px);background:repeating-linear-gradient(135deg,#f3ead9 0 14px,#FFF6E8 14px 28px)">
-                <div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:16px;gap:10px">
-                  <div style="font:400 clamp(22px,3vw,34px) 'Archivo Black',sans-serif;letter-spacing:-.01em">VISIT {{ p.name }} ↗</div>
-                  <div style="font:700 11px 'Space Mono',monospace;letter-spacing:.14em;opacity:.65">LIVE SITE · OPENS IN NEW TAB</div>
-                </div>
-              </a>
+    <div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:16px;gap:10px">
+      <div style="font:400 clamp(22px,3vw,34px) 'Archivo Black',sans-serif;letter-spacing:-.01em">VISIT {{ p.name }} ↗</div>
+      <div style="font:700 11px 'Space Mono',monospace;letter-spacing:.14em;opacity:.65">LIVE SITE · OPENS IN NEW TAB</div>
+    </div>
+  </a>
               <p style="font:500 16px/1.45 'Space Grotesk',sans-serif;margin:16px 0 14px;text-wrap:pretty">{{ p.line }}</p>
               <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
                 <a href="{{ p.caseUrl }}" data-travel="{{ p.travel }}" style="text-decoration:none;font:700 14px 'Space Mono',monospace;background:#111;color:#FFF6E8;border:3px solid #111;padding:12px 18px;box-shadow:5px 5px 0 #FFF6E8;transition:transform .1s,box-shadow .1s" style-hover="transform:translate(2px,2px);box-shadow:3px 3px 0 #FFF6E8;color:#FFF6E8" style-active="transform:translate(5px,5px);box-shadow:0 0 0 #FFF6E8">ENTER THE ADVENTURE →</a>
@@ -212,7 +200,7 @@ a{color:#111}a:hover{color:#FF8A7A}
   </section>
 
   <!-- PLAYGROUNDS -->
-  <section data-screen-label="Playgrounds" style="position:relative;z-index:3;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFF6E8;border-top:4px solid #111">
+  <section data-island="3" data-screen-label="Playgrounds" style="position:relative;z-index:3;padding:clamp(40px,6vw,88px) clamp(24px,4vw,56px);background:#FFF6E8;width:min(100% - 24px,1400px);margin:0 auto 28px;border:4px solid #111;box-shadow:12px 12px 0 #111">
     <div style="max-width:1400px;margin:0 auto">
       <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 12px">SIDE QUEST — TRY THE INTERNALS</p>
       <h2 style="font:400 clamp(32px,4.5vw,64px)/1 'Archivo Black',sans-serif;margin:0 0 40px;letter-spacing:-.02em">TWO TINY MACHINES.</h2>
@@ -244,7 +232,8 @@ a{color:#111}a:hover{color:#FF8A7A}
   </section>
 
   <!-- 06 BUILD WITH ME -->
-  <section id="build" data-screen-label="Build with me" style="position:relative;z-index:3;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFB7D9;border-top:4px solid #111">
+  <div data-voyage="" style="position:relative;z-index:3;height:160vh;display:grid;place-items:center;pointer-events:none"><div style="background:#FFF6E8;border:3px solid #111;padding:8px 14px;font:700 12px 'Space Mono',monospace;letter-spacing:.08em;box-shadow:4px 4px 0 #111;transform:rotate(-2deg)">NEXT STOP → CHART-MAKER'S CAY</div></div>
+  <section data-island="4" id="build" data-screen-label="Build with me" style="position:relative;z-index:3;padding:clamp(40px,6vw,88px) clamp(24px,4vw,56px);background:#FFB7D9;width:min(100% - 24px,1400px);margin:0 auto 28px;border:4px solid #111;box-shadow:12px 12px 0 #111">
     <div style="max-width:1400px;margin:0 auto">
       <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:20px">
         <div data-stop="6" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:64px;height:64px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#FFE566;font:400 22px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 20px 0 12px"><span style="transform:rotate(45deg)">06</span></div>
@@ -287,7 +276,8 @@ a{color:#111}a:hover{color:#FF8A7A}
   </section>
 
   <!-- 05 EXPERIENCE -->
-  <section id="experience" data-screen-label="Experience" style="position:relative;z-index:3;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#FFC9A3;border-top:4px solid #111">
+  <div data-voyage="" style="position:relative;z-index:3;height:160vh;display:grid;place-items:center;pointer-events:none"><div style="background:#FFF6E8;border:3px solid #111;padding:8px 14px;font:700 12px 'Space Mono',monospace;letter-spacing:.08em;box-shadow:4px 4px 0 #111;transform:rotate(-2deg)">NEXT STOP → RIDGE OF YEARS</div></div>
+  <section data-island="5" id="experience" data-screen-label="Experience" style="position:relative;z-index:3;padding:clamp(40px,6vw,88px) clamp(24px,4vw,56px);background:#FFC9A3;width:min(100% - 24px,1400px);margin:0 auto 28px;border:4px solid #111;box-shadow:12px 12px 0 #111">
     <div style="max-width:1400px;margin:0 auto">
       <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:48px">
         <div data-stop="7" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:64px;height:64px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#FFE566;font:400 22px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 20px 0 12px"><span style="transform:rotate(45deg)">07</span></div>
@@ -312,7 +302,7 @@ a{color:#111}a:hover{color:#FF8A7A}
   </section>
 
   <!-- 06 PHILOSOPHY -->
-  <section data-screen-label="Philosophy" style="position:relative;z-index:3;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px);background:#111;color:#FFF6E8;border-top:4px solid #111">
+  <section data-island="5" data-screen-label="Philosophy" style="position:relative;z-index:3;padding:clamp(40px,6vw,88px) clamp(24px,4vw,56px);background:#111;color:#FFF6E8;width:min(100% - 24px,1400px);margin:0 auto 28px;border:4px solid #111;box-shadow:12px 12px 0 #111">
     <div style="max-width:1400px;margin:0 auto">
       <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:40px">
         <div data-stop="8" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:64px;height:64px;border:3px solid #FFF6E8;border-radius:50% 50% 50% 0;background:#FF8A7A;color:#111;font:400 22px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #FFF6E8;margin:0 20px 0 12px"><span style="transform:rotate(45deg)">08</span></div>
@@ -331,7 +321,8 @@ a{color:#111}a:hover{color:#FF8A7A}
   </section>
 
   <!-- 09 FINAL -->
-  <section id="contact" data-screen-label="Contact" style="position:relative;z-index:3;min-height:100vh;padding:clamp(64px,10vw,140px) clamp(24px,5vw,64px) 140px;background:#FFE566;border-top:4px solid #111;display:grid;place-items:center;text-align:center">
+  <div data-voyage="" style="position:relative;z-index:3;height:160vh;display:grid;place-items:center;pointer-events:none"><div style="background:#FFF6E8;border:3px solid #111;padding:8px 14px;font:700 12px 'Space Mono',monospace;letter-spacing:.08em;box-shadow:4px 4px 0 #111;transform:rotate(-2deg)">NEXT STOP → HAVEN</div></div>
+  <section data-island="6" id="contact" data-screen-label="Contact" style="position:relative;z-index:3;min-height:100vh;padding:clamp(40px,6vw,88px) clamp(24px,4vw,56px) 140px;background:#FFE566;display:grid;place-items:center;text-align:center;width:min(100% - 24px,1400px);margin:0 auto 28px;border:4px solid #111;box-shadow:12px 12px 0 #111">
     <div style="max-width:1100px">
       <div data-stop="11" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:84px;height:84px;border:4px solid #111;border-radius:50% 50% 50% 0;background:#FF8A7A;font:400 14px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:5px 5px 0 #111;margin-bottom:40px"><span style="transform:rotate(45deg)">END</span></div>
       <p style="font:700 13px 'Space Mono',monospace;letter-spacing:.1em;margin:0 0 20px">FINAL DESTINATION — YOU MADE IT</p>
@@ -361,8 +352,8 @@ class Component extends DCLogic {
     { t: '$ whoami', c: '#FFF6E8' }, { t: 'yash — software engineer, full-stack, ships on fridays (tested)', c: '#B8F2D0' } ],
     termInput: '', apiMethod: 'GET', apiPath: '/v1/users/42', apiOut: '// press SEND',
     motion: 'stagger', motionKey: 0, offer: 0, plannerKey: 0, visited: [], soundOn: false, passportOpen: false };
-  rootRef = React.createRef(); svgRef = React.createRef(); basePathRef = React.createRef(); donePathRef = React.createRef();
-  markerRef = React.createRef(); barRef = React.createRef(); termInputRef = React.createRef(); cursorRef = React.createRef(); dotRef = React.createRef(); labelRef = React.createRef(); underlineRef = React.createRef(); hereLabelRef = React.createRef();
+  rootRef = React.createRef(); worldRef = React.createRef(); stageRef = React.createRef(); cloudsRef = React.createRef(); tintRef = React.createRef(); scrollHintRef = React.createRef();
+  barRef = React.createRef(); termInputRef = React.createRef(); cursorRef = React.createRef(); dotRef = React.createRef(); labelRef = React.createRef(); underlineRef = React.createRef();
 
   skillsData = {
     Java: ['Backend services that need to be boringly reliable.', 'Spring Boot APIs, JVM tuning, concurrency with executors and CompletableFuture.', 'ApiForge'],
@@ -487,10 +478,15 @@ class Component extends DCLogic {
     this.onResize = () => { clearTimeout(this.rt); this.rt = setTimeout(() => { this.build(); this.update(); }, 120); };
     addEventListener('scroll', this.onScroll, { passive: true }); addEventListener('resize', this.onResize);
     this.io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { const el = en.target; el.style.opacity = '1'; el.style.transform = el.dataset.rot || ''; this.io.unobserve(el); } }), { threshold: .15 });
+    this.setState({ shortVp: innerHeight < 620 });
+    this.lite = this.reduced || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) || matchMedia('(max-width:700px)').matches;
     this.setupReveals();
     this.ro = new ResizeObserver(this.onResize); this.ro.observe(this.rootRef.current);
     setTimeout(() => { this.build(); this.update(); }, 50);
-    import('./journey.js').then(m => { this.cursor = m.attachCursor({ cursor: this.cursorRef, dot: this.dotRef, label: this.labelRef }); this.travel = m.attachTravel({ here: 'map', onUnroll: () => this.sfx('unroll') }); this.bottle = m.attachBottle({ onSplash: k => this.sfx(k === 'cork' ? 'stamp' : 'unroll') }); this.intro = m.attachIntro({ onDone: () => { this.build(); this.update(); } }); });
+    import('./journey.js').then(m => { this.scene = m; this.buildWorld(); this.prepareArrival(); this.build(); this.update(); this.smooth = m.attachSmoothScroll(); this.cursor = m.attachCursor({ cursor: this.cursorRef, dot: this.dotRef, label: this.labelRef }); this.travel = m.attachTravel({ here: 'map', onUnroll: () => this.sfx('unroll') }); this.bottle = m.attachBottle({ onSplash: k => this.sfx(k === 'cork' ? 'stamp' : 'unroll') }); this.intro = m.attachIntro({ onDone: () => { this.build(); this.update(); this.startArrival(); } }); });
+    // in-page anchors: eased jump (CSS smooth is disabled while the wheel smoother is active)
+    this.onAnchor = e => { const a = e.target.closest && e.target.closest('a[href^="#"]'); if (!a || a.hasAttribute('data-travel')) return; const t = document.querySelector(a.getAttribute('href')); if (!t) return; e.preventDefault(); const top = t.getBoundingClientRect().top + scrollY - 16; if (this.smooth && this.smooth.jump) this.smooth.jump(top); else window.scrollTo({ top, behavior: this.reduced ? 'instant' : 'smooth' }); };
+    this.rootRef.current.addEventListener('click', this.onAnchor);
     this.stampIO = new IntersectionObserver(es => es.forEach(en => { if (!en.isIntersecting) return; const id = +en.target.getAttribute('data-stop'); if (id >= 1 && id <= 8 && !this.state.visited.includes(id)) { this.setState(s => ({ visited: [...s.visited, id], passportOpen: true })); this.sfx('stamp'); clearTimeout(this.ppT); this.ppT = setTimeout(() => this.setState({ passportOpen: false }), 1600); } }), { threshold: .9 });
     this.rootRef.current.querySelectorAll('[data-stop]').forEach(el => this.stampIO.observe(el));
     this.underIO = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting && !this.underDrawn) { const p = this.rootRef.current.querySelector('[data-underline]'); if (!p) return; this.underDrawn = true; const len = p.getTotalLength(); p.style.transition = 'none'; p.style.strokeDasharray = `${len} ${len}`; p.style.strokeDashoffset = len; p.getBoundingClientRect(); p.style.transition = this.reduced ? 'none' : 'stroke-dashoffset 1.6s cubic-bezier(.3,.8,.3,1)'; p.style.strokeDashoffset = 0; } }), { threshold: .2 });
@@ -498,7 +494,7 @@ class Component extends DCLogic {
     setTimeout(() => this.animatePlanner(), 400);
   }
   componentDidUpdate() { this.setupReveals(); }
-  componentWillUnmount() { this.intro && this.intro.destroy(); this.bottle && this.bottle.destroy(); this.stampIO && this.stampIO.disconnect(); this.underIO && this.underIO.disconnect(); this.cursor && this.cursor.destroy(); this.travel && this.travel.destroy(); removeEventListener('scroll', this.onScroll); removeEventListener('resize', this.onResize); this.io && this.io.disconnect(); this.ro && this.ro.disconnect(); }
+  componentWillUnmount() { this.bottle && this.bottle.destroy(); this.stampIO && this.stampIO.disconnect(); this.underIO && this.underIO.disconnect(); this.cursor && this.cursor.destroy(); this.travel && this.travel.destroy(); removeEventListener('scroll', this.onScroll); removeEventListener('resize', this.onResize); this.io && this.io.disconnect(); this.ro && this.ro.disconnect(); }
   setupReveals() {
     const root = this.rootRef.current; if (!root) return;
     root.querySelectorAll('[data-reveal]:not([data-rv])').forEach(el => {
@@ -508,39 +504,131 @@ class Component extends DCLogic {
       this.io.observe(el);
     });
   }
-  build() {
-    const root = this.rootRef.current, svg = this.svgRef.current; if (!root || !svg) return;
-    const rb = root.getBoundingClientRect(); const W = root.offsetWidth, H = root.offsetHeight;
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    const stops = [...root.querySelectorAll('[data-stop]')].map(el => { const b = el.getBoundingClientRect(); return { x: b.left + b.width / 2 - rb.left, y: b.top + b.height / 2 - rb.top }; }).sort((a, b) => a.y - b.y);
-    if (stops.length < 2) return;
-    let d = `M ${stops[0].x} ${stops[0].y}`;
-    for (let i = 1; i < stops.length; i++) {
-      const a = stops[i - 1], b = stops[i], dy = (b.y - a.y) * .5, cl = x => Math.max(40, Math.min(W - 40, x));
-      const sa = a.x < W / 2 ? 1 : -1, sb = b.x < W / 2 ? 1 : -1, sw = Math.min(W * .2, 200);
-      d += ` C ${cl(a.x + sa * sw)} ${a.y + dy}, ${cl(b.x + sb * sw)} ${b.y - dy}, ${b.x} ${b.y}`;
-    }
-    this.basePathRef.current.setAttribute('d', d); const done = this.donePathRef.current; done.setAttribute('d', d);
-    this.len = done.getTotalLength(); done.style.strokeDasharray = `${this.len} ${this.len}`; this.H = H; this.rootTop = rb.top + scrollY;
-    // squash the walked trail into a 900×56 underline path (x from progress, y from the trail's sideways wander)
-    const N = 40, pts = []; for (let i = 0; i <= N; i++) { const p = done.getPointAtLength(this.len * i / N); pts.push({ x: 10 + 880 * i / N, y: 28 + ((p.x / W) - .5) * 44 }); }
-    let ud = `M ${pts[0].x} ${pts[0].y}`; for (let i = 1; i < pts.length; i++) ud += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
+  WORLD = { w: 7600, h: 2400, base: 1300, water: 1420 };
+  ISLANDS = [
+    { name: 'HARBOR OF BEGINNINGS', sub: '00 · START', x: 760, rx: 320, ry: 200, grass: '#B8F2D0', kind: 'harbor', seed: 3 },
+    { name: "CAPTAIN'S QUAY", sub: '01 · ABOUT', x: 1860, rx: 290, ry: 190, grass: '#C9B8FF', kind: 'quay', seed: 7 },
+    { name: 'SIX STOPS ATOLL', sub: '02 · SERVICES', x: 2960, rx: 330, ry: 150, grass: '#FFE566', kind: 'atoll', seed: 11 },
+    { name: 'ISLE OF SHIPPED THINGS', sub: '03 · PROJECTS', x: 4060, rx: 340, ry: 230, grass: '#A9D8FF', kind: 'shipped', seed: 5 },
+    { name: "CHART-MAKER'S CAY", sub: '04 · BUILD', x: 5160, rx: 300, ry: 170, grass: '#FFB7D9', kind: 'cay', seed: 13 },
+    { name: 'RIDGE OF YEARS', sub: '05 · EXPERIENCE', x: 6260, rx: 320, ry: 260, grass: '#FFC9A3', kind: 'ridge', seed: 17 },
+    { name: 'HAVEN', sub: '06 · CONTACT', x: 7200, rx: 300, ry: 190, grass: '#B8F2D0', kind: 'haven', seed: 19 }
+  ];
+  harbor(i) { const a = this.ISLANDS[i]; return { x: a.x + a.rx + 110, y: this.WORLD.water }; }
+  buildWorld() {
+    const st = this.stageRef.current, cl = this.cloudsRef.current; if (!st || !cl) return;
+    const { w, h, base } = this.WORLD, INK = '#111', lite = this.lite;
+    const rnd = (seed, k) => { const v = Math.sin(seed * 999.1 + k * 37.7) * 43758.5; return v - Math.floor(v); };
+    const blob = (rx, ry, seed, n = 9) => { const pts = []; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2, j = .8 + .32 * rnd(seed, i); pts.push([Math.cos(a) * rx * j, Math.sin(a) * ry * j]); } let d = ''; for (let i = 0; i < n; i++) { const q = pts[(i + 1) % n], nq = pts[(i + 2) % n], p = pts[i], m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], m2 = [(q[0] + nq[0]) / 2, (q[1] + nq[1]) / 2]; if (!i) d += `M ${m[0].toFixed(1)} ${m[1].toFixed(1)}`; d += ` Q ${q[0].toFixed(1)} ${q[1].toFixed(1)} ${m2[0].toFixed(1)} ${m2[1].toFixed(1)}`; } return d + ' Z'; };
+    const islands = this.ISLANDS.map(I => this.scene.islandMarkup(I, base)).join('');
+    const far = Array.from({ length: 11 }, (_, k) => { const x = 300 + k * 700 + rnd(61, k) * 300, rw = 160 + rnd(62, k) * 220, rh = 50 + rnd(63, k) * 70; return `<path d="M ${x - rw} ${base} q ${rw * .5} ${-rh} ${rw} ${-rh * .4} q ${rw * .4} ${-rh * .6} ${rw} ${rh} Z" fill="#B9D6EE" stroke="${INK}" stroke-width="3" opacity=".8"></path>`; }).join('');
+    const h0 = this.harbor(0), pts = [{ x: h0.x - 1300, y: h0.y }, ...this.ISLANDS.map((_, i) => this.harbor(i))];
+    let d = `M ${pts[0].x} ${pts[0].y}`; for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2, bend = (i % 2 ? -1 : 1) * 46; d += ` C ${p1.x + (p2.x - p0.x) / 5} ${p1.y + (p2.y - p0.y) / 5 + bend}, ${p2.x - (p3.x - p1.x) / 5} ${p2.y - (p3.y - p1.y) / 5 - bend}, ${p2.x} ${p2.y}`; }
+    const waves = []; const nW = lite ? 80 : 170; for (let k = 0; k < nW; k++) { const x = rnd(1, k) * w, y = base + 70 + rnd(2, k) * (h - base - 70); const sc = .8 + (y - base) / (h - base) * 1.2; waves.push(`<path d="M ${x.toFixed(0)} ${y.toFixed(0)} q ${16 * sc} ${-9 * sc} ${32 * sc} 0 t ${32 * sc} 0 t ${32 * sc} 0" fill="none" stroke="#FFF6E8" stroke-width="${(3 + sc).toFixed(1)}" stroke-linecap="round" opacity=".75"></path>`); }
+    const half = Math.ceil(waves.length / 2), wavA = waves.slice(0, half).join(''), wavB = waves.slice(half).join('');
+    const anim = (dur, delay) => lite ? '' : `style="animation:waveDrift ${dur}s ease-in-out ${delay}s infinite alternate"`;
+    st.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" style="position:absolute;left:0;top:0;overflow:visible">
+      <defs><linearGradient id="jsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FC7EE"></stop><stop offset="1" stop-color="#EAF6FF"></stop></linearGradient><linearGradient id="jsea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8CC6F0"></stop><stop offset="1" stop-color="#3F7FC7"></stop></linearGradient><mask id="wmask"><path data-visited d="${d}" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round" style="stroke-dasharray:0 99999"></path></mask></defs>
+      <rect x="-6000" y="-6000" width="${w + 12000}" height="${base + 6000}" fill="url(#jsky)"></rect>
+      <circle cx="${w * .22}" cy="420" r="120" fill="#FFE566" stroke="${INK}" stroke-width="6"></circle>
+      ${far}
+      <rect x="-6000" y="${base}" width="${w + 12000}" height="${h - base + 6000}" fill="url(#jsea)"></rect>
+      <path d="M -6000 ${base} L ${w + 6000} ${base}" stroke="${INK}" stroke-width="6"></path>
+      <g ${anim(7, 0)}>${wavA}</g><g ${anim(9, -3)}>${wavB}</g>
+      ${islands}
+      <path d="${d}" fill="none" stroke="${INK}" stroke-width="5" stroke-dasharray="3 24" stroke-linecap="round" opacity=".28"></path>
+      <path d="${d}" fill="none" stroke="${INK}" stroke-width="6" stroke-dasharray="3 24" stroke-linecap="round" opacity=".7" mask="url(#wmask)"></path>
+      <path data-wake d="${d}" fill="none" stroke="#FFF6E8" stroke-width="12" stroke-linecap="round" opacity=".8" style="stroke-dasharray:0 99999"></path>
+      <path data-route d="${d}" fill="none" stroke="none"></path>
+    </svg>
+    <div data-ship style="position:absolute;left:0;top:0;width:0;height:0;will-change:transform">
+      <div style="${lite ? '' : 'animation:shipBob 2.8s ease-in-out infinite;'}transform-origin:0 0">
+        <div data-flip style="position:absolute;left:0;top:0;width:0;height:0">${this.scene.shipMarkup()}</div>
+        <div style="position:absolute;left:-46px;top:-112px;background:#FFF6E8;border:3px solid #111;padding:3px 8px;font:700 11px 'Space Mono',monospace;box-shadow:3px 3px 0 #111;white-space:nowrap;transform:rotate(-3deg)">S.S. SHIP-IT</div>
+      </div>
+    </div>`;
+    this.route = st.querySelector('[data-route]'); this.wake = st.querySelector('[data-wake]'); this.visited = st.querySelector('[data-visited]'); this.ship = st.querySelector('[data-ship]'); this.flip = st.querySelector('[data-flip]');
+    this.routeLen = this.route.getTotalLength();
+    const arcsAll = pts.map(p => { let best = 0, bd = 1e12; for (let L = 0; L <= this.routeLen; L += 4) { const q = this.route.getPointAtLength(L), dd = (q.x - p.x) ** 2 + (q.y - p.y) ** 2; if (dd < bd) { bd = dd; best = L; } } return best; });
+    this.arc0 = arcsAll[0]; this.arcs = arcsAll.slice(1);
+    const clouds = Array.from({ length: lite ? 6 : 12 }, (_, k) => { const x = 100 + rnd(31, k) * (w - 200), y = 120 + rnd(32, k) * 760, sc = .8 + rnd(33, k) * 1.1; return `<div style="position:absolute;left:${x.toFixed(0)}px;top:${y.toFixed(0)}px;${lite ? '' : `animation:cloudDrift ${(40 + rnd(34, k) * 40).toFixed(0)}s ease-in-out ${(-rnd(35, k) * 40).toFixed(0)}s infinite alternate`}"><svg viewBox="-120 -60 240 120" width="${(240 * sc).toFixed(0)}" height="${(120 * sc).toFixed(0)}" style="overflow:visible"><path d="${blob(100, 42, 40 + k, 9)}" fill="#FFF6E8" stroke="${INK}" stroke-width="4" opacity=".96"></path></svg></div>`; }).join('');
+    const birds = Array.from({ length: lite ? 3 : 8 }, (_, k) => { const x = rnd(51, k) * w, y = 200 + rnd(52, k) * 800; return `<svg style="position:absolute;left:${x.toFixed(0)}px;top:${y.toFixed(0)}px;${lite ? '' : `animation:cloudDrift ${(14 + rnd(53, k) * 10).toFixed(0)}s linear ${(-rnd(54, k) * 20).toFixed(0)}s infinite alternate`}" width="60" height="24" viewBox="0 0 60 24"><path d="M2 16 q 12 -14 26 0 q 14 -14 30 0" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"></path></svg>`; }).join('');
+    cl.innerHTML = clouds + birds;
+    const N = 40, up = []; for (let i = 0; i <= N; i++) { const p = this.route.getPointAtLength(this.arcs[0] + (this.routeLen - this.arcs[0]) * i / N); up.push({ x: 10 + 880 * i / N, y: 28 + (p.y - this.WORLD.water) / 50 * 22 }); }
+    let ud = `M ${up[0].x} ${up[0].y.toFixed(1)}`; for (let i = 1; i < up.length; i++) ud += ` L ${up[i].x.toFixed(1)} ${up[i].y.toFixed(1)}`;
     if (ud !== this.state.trailD) this.setState({ trailD: ud });
-    this.terrains = [...root.querySelectorAll('[data-parallax]')].map(el => ({ el, top: el.parentElement.getBoundingClientRect().top - rb.top }));
+  }
+  sailAway(to) {
+    return new Promise(res => {
+      if (this.reduced || !this.route || to === 'map') return res();
+      this.departing = true; this.departT = 0; this.departL = this.curL || 0;
+      const t0 = performance.now(), dur = 1500;
+      const step = now => { this.departT = Math.min(1, (now - t0) / dur); this.update(); if (this.departT < 1) requestAnimationFrame(step); else { res(); setTimeout(() => { this.departing = false; }, 1500); } };
+      requestAnimationFrame(step);
+    });
+  }
+  prepareArrival() {
+    if (this.reduced || !this.rootRef.current || window.__jArrivalDone) return;
+    this.arriving = true; this.arriveT = 0;
+    this.rootRef.current.querySelectorAll('[data-hero]').forEach(el => { el.style.transition = 'opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1)'; el.style.opacity = '0'; el.style.transform = 'translateY(30px)'; });
+    document.documentElement.style.overflow = 'hidden';
+  }
+  startArrival() {
+    if (window.__jArrivalDone) return;
+    if (!this.arriving) { this.showHero(); return; }
+    scrollTo(0, 0); const t0 = performance.now(), dur = 3200;
+    const step = now => { this.arriveT = Math.min(1, (now - t0) / dur); this.update(); if (this.arriveT < 1) requestAnimationFrame(step); else { this.arriving = false; document.documentElement.style.overflow = ''; this.showHero(); } };
+    requestAnimationFrame(step);
+  }
+  showHero() {
+    const root = this.rootRef.current; if (!root || window.__jArrivalDone) return; window.__jArrivalDone = true;
+    const els = [...root.querySelectorAll('[data-hero]')]; els.forEach((el, k) => setTimeout(() => { el.style.opacity = '1'; el.style.transform = ''; }, k * 180));
+    const hint = this.scrollHintRef.current; if (hint && !this.reduced) setTimeout(() => { hint.style.opacity = '1'; this.hintShown = true; }, els.length * 180 + 600);
+  }
+  build() {
+    const root = this.rootRef.current; if (!root) return;
+    this.W = innerWidth; this.H = innerHeight; const H = this.H;
+    this.sections = [...root.querySelectorAll('[data-island]')].map(el => ({ el, top: el.getBoundingClientRect().top + scrollY }));
+    this.voyages = [...root.querySelectorAll('[data-voyage]')].map((el, k) => { const r = el.getBoundingClientRect(), top = r.top + scrollY; return { i: k + 1, start: top - H, end: top + r.height - H }; });
+    this.docH = document.documentElement.scrollHeight;
   }
   update() {
-    if (!this.len) return; const done = this.donePathRef.current, bar = this.barRef.current, mk = this.markerRef.current;
-    const prog = Math.max(0, Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)));
-    bar.style.width = (prog * 100).toFixed(2) + '%';
-    const lbl = this.hereLabelRef.current; if (lbl) { lbl.style.opacity = '1'; clearTimeout(this.lblT); this.lblT = setTimeout(() => { lbl.style.opacity = '0'; }, 900); }
-    if (this.terrains && !this.reduced) { const vc = scrollY + innerHeight / 2 - this.rootTop; this.terrains.forEach(t => { const dy = (vc - t.top) * .12; t.el.style.transform = `translateY(${dy.toFixed(1)}px)`; }); }
-    const targetY = scrollY + innerHeight * .45 - this.rootTop; let lo = 0, hi = this.len, L = 0;
-    for (let i = 0; i < 22; i++) { const mid = (lo + hi) / 2; const pt = done.getPointAtLength(mid); if (pt.y < targetY) lo = mid; else hi = mid; L = mid; }
-    const p0 = done.getPointAtLength(0), pN = done.getPointAtLength(this.len);
-    if (targetY <= p0.y) L = 0; if (targetY >= pN.y) L = this.len;
-    done.style.strokeDashoffset = this.len - L; const pt = done.getPointAtLength(L);
-    const mx = Math.max(70, Math.min(this.rootRef.current.offsetWidth - 70, pt.x));
-    mk.style.transform = `translate(${mx}px, ${pt.y}px)`; mk.style.opacity = L > 4 ? '1' : '0';
+    if (!this.voyages || !this.voyages.length || !this.route) return;
+    const W = this.W, H = this.H, y = scrollY, clamp = v => Math.max(0, Math.min(1, v)), lerp = (a, b, t) => a + (b - a) * t, base = this.WORLD.base;
+    const smooth = (t, a, b) => { const k = clamp((t - a) / (b - a)); return k * k * (3 - 2 * k); };
+    const prog = clamp(y / Math.max(1, this.docH - H));
+    this.barRef.current.style.width = (prog * 100).toFixed(2) + '%';
+    if (this.tintRef.current) this.tintRef.current.style.opacity = (prog * .3).toFixed(3);
+    if (this.hintShown && y > 80 && this.scrollHintRef.current) { this.scrollHintRef.current.style.opacity = '0'; this.hintShown = false; }
+    let i = this.ISLANDS.length - 1, t = 1, cur = null, prevEnd = 0;
+    for (const v of this.voyages) { if (y < v.end) { i = v.i; t = clamp((y - v.start) / (v.end - v.start)); cur = v; break; } prevEnd = v.end; }
+    if (!cur) { cur = this.voyages[this.voyages.length - 1]; i = cur.i; t = 1; }
+    const a = this.ISLANDS[i - 1], b = this.ISLANDS[i];
+    const te = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    let L = this.arcs[i - 1] + (this.arcs[i] - this.arcs[i - 1]) * te, wakeFrom = this.arcs[i - 1];
+    if (this.arriving) { const e = 1 - Math.pow(1 - this.arriveT, 3); L = lerp(this.arc0, this.arcs[0], e); wakeFrom = this.arc0; }
+    this.curL = L;
+    if (this.departing) { const e = this.departT * this.departT; L = Math.min(this.routeLen, this.departL + 900 * e); wakeFrom = this.departL; }
+    const pt = this.route.getPointAtLength(L), ah = this.route.getPointAtLength(Math.min(this.routeLen, L + 4));
+    const dx = ah.x - pt.x, dy = ah.y - pt.y, flip = dx < 0 ? -1 : 1, ang = Math.atan2(dy, Math.abs(dx)) * 180 / Math.PI * .5;
+    this.ship.style.transform = `translate(${pt.x.toFixed(1)}px, ${pt.y.toFixed(1)}px) rotate(${(ang * flip).toFixed(1)}deg)`;
+    this.flip.style.transform = `scale(${flip * 1.3}, 1.3)`;
+    this.wake.style.strokeDasharray = `0 ${wakeFrom} ${Math.max(0, L - wakeFrom)} ${this.routeLen}`;
+    this.visited.style.strokeDasharray = `${L} ${this.routeLen}`;
+    const sPark = Math.max(.42, Math.min(2, Math.min(.92 * W / (2 * b.rx + 320), .78 * H / (b.ry + 460))));
+    const dist = Math.hypot(b.x - a.x, 0);
+    const sWide = Math.max(sPark * .45, Math.min(sPark, .72 * W / (dist + 760)));
+    const leave = smooth(t, 0, .3), arrive = smooth(t, .62, 1), bell = this.reduced ? 0 : leave * (1 - arrive);
+    let s = sPark + (sWide - sPark) * bell;
+    const ac = { x: a.x + 20, y: base - a.ry * .35 }, bc = { x: b.x + 20, y: base - b.ry * .35 };
+    let cx = lerp(lerp(ac.x, pt.x, leave), bc.x, arrive), cy = lerp(lerp(ac.y, pt.y - 60, leave), bc.y, arrive);
+    const parkedScroll = t >= 1 ? y - cur.end : (t <= 0 ? Math.max(0, y - prevEnd) : 0);
+    cy += parkedScroll * .04 / s;
+    if (this.departing) { const e = this.departT; cx = lerp(cx, pt.x, e); cy = lerp(cy, pt.y - 80, e); s = s * (1 - .12 * e); }
+    const tx = W * .5 - cx * s, ty = H * .46 - cy * s;
+    this.stageRef.current.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
+    this.cloudsRef.current.style.transform = `translate3d(${(tx * .7 + W * .15).toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
+    if (!this.reduced) this.sections.forEach(sc => { const e = clamp((y + H - sc.top) / (H * .45)); sc.el.style.opacity = e.toFixed(3); sc.el.style.transform = e < 1 ? `translateY(${((1 - e) * 48).toFixed(1)}px)` : ''; });
   }
 
   renderVals() {
@@ -549,9 +637,9 @@ class Component extends DCLogic {
     const offers = offersRaw.map((o, i) => ({ ...o, selected: i === this.state.offer, tabBg: i === this.state.offer ? '#111' : o.bg, tabFg: i === this.state.offer ? '#FFF6E8' : '#111', tabShadow: i === this.state.offer ? '5px 5px 0 #FF8A7A' : '5px 5px 0 #111' }));
     const stamps = this.STAMPS.map(s => { const got = this.state.visited.includes(s.id); return { ...s, bgNow: got ? s.bg : 'transparent', op: got ? 1 : .35, anim: got && !this.reduced ? 'stampIn .5s cubic-bezier(.2,.8,.2,1) both' : 'none' }; });
     return {
-      offers, offer, pickOffer: this.pickOffer, plannerSvg: this.plannerSvg(offer), underlineRef: this.underlineRef, hereLabelRef: this.hereLabelRef, underlineSvg: this.underlineSvg(),
+      offers, offer, pickOffer: this.pickOffer, plannerSvg: this.plannerSvg(offer), underlineRef: this.underlineRef, underlineSvg: this.underlineSvg(),
       stamps, stampCount: this.state.visited.length, stampTotal: this.STAMPS.length, toggleSound: this.toggleSound, soundOn: this.state.soundOn, openPassport: this.openPassport, replayIntro: this.replayIntro, closePassport: this.closePassport, passportOpacity: this.state.passportOpen ? 1 : 0, passportTransform: this.state.passportOpen ? 'none' : 'translateY(-6px)', passportPointer: this.state.passportOpen ? 'auto' : 'none', soundLabel: this.state.soundOn ? 'SFX ON' : 'SFX OFF',
-      rootRef: this.rootRef, svgRef: this.svgRef, basePathRef: this.basePathRef, donePathRef: this.donePathRef, markerRef: this.markerRef, barRef: this.barRef, termInputRef: this.termInputRef, cursorRef: this.cursorRef, dotRef: this.dotRef, labelRef: this.labelRef,
+      rootRef: this.rootRef, worldRef: this.worldRef, stageRef: this.stageRef, cloudsRef: this.cloudsRef, tintRef: this.tintRef, scrollHintRef: this.scrollHintRef, hintDisplay: this.state.shortVp ? 'none' : 'block', barRef: this.barRef, termInputRef: this.termInputRef, cursorRef: this.cursorRef, dotRef: this.dotRef, labelRef: this.labelRef,
       liveEmbeds, noEmbeds: !liveEmbeds,
       legend: [{ n: '1', name: 'IDEA', sub: 'a problem worth solving', bg: '#FFE566', rot: -3 }, { n: '2', name: 'CODE', sub: 'typed, tested, reviewed', bg: '#A9D8FF', rot: 2 }, { n: '3', name: 'PRODUCT', sub: 'deployed and measurable', bg: '#FFB7D9', rot: -2 }, { n: '4', name: 'USERS', sub: 'the only metric that matters', bg: '#FF8A7A', rot: 3 }],
       likes: [{ t: 'I LIKE COMPLEX PROBLEMS.', bg: '#FFE566', rot: -1.5 }, { t: 'I LIKE FAST SYSTEMS.', bg: '#A9D8FF', rot: 1 }, { t: 'I LIKE GOOD UI.', bg: '#FFB7D9', rot: -0.8 }, { t: 'I LIKE SHIPPING.', bg: '#B8F2D0', rot: 1.6 }],
@@ -565,9 +653,9 @@ class Component extends DCLogic {
         { n: '06', name: 'AI-POWERED PRODUCTS', d: 'LLM features that are useful, bounded and cheap to run.', tag: 'llm · embeddings · evals', bg: '#FF8A7A', rot: 1.1 }
       ],
       projects: [
-        { n: '01', stop: 3, side: 'flex-start', terrain: this.terrain('island'), name: 'NOTCHISLAND', caseUrl: 'Case NotchIsland.html', travel: 'notch', repo: 'https://github.com/YashKesh', line: 'The MacBook notch, turned into a 168 pt band of tools: shelf, now-playing, focus, weather, battery — fourteen tiles, one row.', url: 'https://notchisland.codeloomdevv.co.in/', bg: '#A9D8FF', rot: -0.6, problem: 'The notch is dead space; every app that fills it covers your document.', build: 'One rule — width, not depth. Three states, a drag-and-drop shelf, keyboard-first.', stack: 'Swift · macOS · TypeScript · React (site)', impact: '14 tiles · 168 pt', impactSub: 'Nothing launches a window. Everything opens inside the same band.' },
-        { n: '02', stop: 4, side: 'flex-end', terrain: this.terrain('forge'), name: 'APIFORGE', caseUrl: 'Case ApiForge.html', travel: 'apiforge', repo: 'https://github.com/YashKesh', line: 'The API client that weighs nothing — local-first, Claude built in, collections and scoped variables in a 24 MB binary.', url: 'https://apiforge.codeloomdevv.co.in/', bg: '#FFB7D9', rot: 0.6, problem: 'API clients got heavy: sign-ups, sync, 400 MB installs, secrets in the cloud.', build: 'Electron on a diet. Typed, scoped variables; masked secrets; Claude writes the runner scripts.', stack: 'TypeScript · React · Electron · Claude API', impact: '24 MB · 92 ms', impactSub: 'Install size and cold start. No sign-up, no cloud sync required.' },
-        { n: '03', stop: 5, side: 'flex-start', terrain: this.terrain('wind'), name: 'VELOCE UI', caseUrl: 'Case VeloceUI.html', travel: 'veloce', repo: 'https://github.com/YashKesh/Veloce-UI', line: 'Accessible React components with signature motion built in — every transition pure CSS, nothing shipped to the client but your UI.', url: 'https://veloceui.codeloomdevv.co.in/', bg: '#C9B8FF', rot: -0.4, problem: 'Motion is either missing from component kits or costs 60 kB of library.', build: 'Tokens → motion → 36 components + 13 charts. Choreography as CSS custom properties.', stack: 'TypeScript · React · CSS · Storybook · npm', impact: '0 kB runtime', impactSub: '36 primitives + 13 charts, WCAG 2.2 AA across the board.' }
+        { n: '01', stop: 3, side: 'flex-start', name: 'NOTCHISLAND', caseUrl: 'Case NotchIsland.html', travel: 'notch', repo: 'https://github.com/YashKesh', line: 'The MacBook notch, turned into a 168 pt band of tools: shelf, now-playing, focus, weather, battery — fourteen tiles, one row.', url: 'https://notchisland.codeloomdevv.co.in/', bg: '#A9D8FF', rot: -0.6, problem: 'The notch is dead space; every app that fills it covers your document.', build: 'One rule — width, not depth. Three states, a drag-and-drop shelf, keyboard-first.', stack: 'Swift · macOS · TypeScript · React (site)', impact: '14 tiles · 168 pt', impactSub: 'Nothing launches a window. Everything opens inside the same band.' },
+        { n: '02', stop: 4, side: 'flex-end', name: 'APIFORGE', caseUrl: 'Case ApiForge.html', travel: 'apiforge', repo: 'https://github.com/YashKesh', line: 'The API client that weighs nothing — local-first, Claude built in, collections and scoped variables in a 24 MB binary.', url: 'https://apiforge.codeloomdevv.co.in/', bg: '#FFB7D9', rot: 0.6, problem: 'API clients got heavy: sign-ups, sync, 400 MB installs, secrets in the cloud.', build: 'Electron on a diet. Typed, scoped variables; masked secrets; Claude writes the runner scripts.', stack: 'TypeScript · React · Electron · Claude API', impact: '24 MB · 92 ms', impactSub: 'Install size and cold start. No sign-up, no cloud sync required.' },
+        { n: '03', stop: 5, side: 'flex-start', name: 'VELOCE UI', caseUrl: 'Case VeloceUI.html', travel: 'veloce', repo: 'https://github.com/YashKesh/Veloce-UI', line: 'Accessible React components with signature motion built in — every transition pure CSS, nothing shipped to the client but your UI.', url: 'https://veloceui.codeloomdevv.co.in/', bg: '#C9B8FF', rot: -0.4, problem: 'Motion is either missing from component kits or costs 60 kB of library.', build: 'Tokens → motion → 36 components + 13 charts. Choreography as CSS custom properties.', stack: 'TypeScript · React · CSS · Storybook · npm', impact: '0 kB runtime', impactSub: '36 primitives + 13 charts, WCAG 2.2 AA across the board.' }
       ],
       apiMethod: this.state.apiMethod, apiPath: this.state.apiPath, apiOut: this.state.apiOut, apiMethodChange: this.apiMethodChange, apiPathChange: this.apiPathChange, apiSend: this.apiSend,
       motionPresets: [{ id: 'press', label: 'press 120ms', bg: '#FFE566' }, { id: 'lift', label: 'lift 200ms', bg: '#A9D8FF' }, { id: 'stagger', label: 'stagger 40ms', bg: '#B8F2D0' }], pickMotion: this.pickMotion, replayMotion: this.replayMotion, motionDemo: this.motionDemo(),

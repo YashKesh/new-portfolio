@@ -1,3 +1,92 @@
+// Synthesized ship sounds via WebAudio — foghorn on unroll, waves while sailing, bell on arrive.
+const JAudio = (() => {
+  let ctx = null;
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  const envGain = (c, t0, peak, atk, dec) => { const g = c.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(peak, t0 + atk); g.gain.exponentialRampToValueAtTime(0.0001, t0 + atk + dec); return g; };
+  return {
+    foghorn() {
+      try { const c = ac(); const t = c.currentTime;
+        const notes = [392, 329.6, 261.6];
+        notes.forEach((f, i) => {
+          const t0 = t + i * 0.28;
+          [1, 2, 3].forEach((h, k) => {
+            const o = c.createOscillator(); o.type = k === 0 ? 'sawtooth' : 'square';
+            o.frequency.setValueAtTime(f * h, t0);
+            const g = envGain(c, t0, 0.18 / (h * 1.5), 0.04, 0.42); o.connect(g).connect(c.destination); o.start(t0); o.stop(t0 + 0.5);
+          });
+        });
+        const sub = c.createOscillator(); sub.type = 'sawtooth'; sub.frequency.setValueAtTime(55, t); sub.frequency.linearRampToValueAtTime(44, t + 1.4);
+        const sg = envGain(c, t, 0.3, 0.12, 1.3); sub.connect(sg).connect(c.destination); sub.start(t); sub.stop(t + 1.5);
+      } catch (e) {}
+    },
+    seagull() {
+      try { const c = ac(); const t = c.currentTime;
+        [0, 0.35].forEach(off => {
+          const o = c.createOscillator(); o.type = 'triangle';
+          const t0 = t + off;
+          o.frequency.setValueAtTime(1800, t0);
+          o.frequency.exponentialRampToValueAtTime(900, t0 + 0.14);
+          o.frequency.exponentialRampToValueAtTime(1400, t0 + 0.22);
+          const g = c.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.14, t0 + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.28);
+          o.connect(g).connect(c.destination); o.start(t0); o.stop(t0 + 0.3);
+        });
+      } catch (e) {}
+    },
+    creak() {
+      try { const c = ac(); const t = c.currentTime; const dur = 0.55;
+        const bufSize = Math.floor(c.sampleRate * dur); const buf = c.createBuffer(1, bufSize, c.sampleRate); const d = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * 0.6;
+        const src = c.createBufferSource(); src.buffer = buf;
+        const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 10;
+        bp.frequency.setValueAtTime(220, t); bp.frequency.exponentialRampToValueAtTime(480, t + dur);
+        const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.08, t + 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        src.connect(bp).connect(g).connect(c.destination); src.start(t); src.stop(t + dur + 0.05);
+      } catch (e) {}
+    },
+    waves(duration) {
+      try { const self = this; const c = ac(); const t = c.currentTime; const dur = Math.max(0.5, duration);
+        const bufSize = Math.floor(c.sampleRate * dur); const buf = c.createBuffer(1, bufSize, c.sampleRate); const d = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) {
+          const sec = i / c.sampleRate;
+          const swell = 0.5 + 0.5 * Math.sin(sec * 2 * Math.PI * 0.5);
+          const crash = Math.max(0, Math.sin(sec * 2 * Math.PI * 0.9)) ** 3;
+          d[i] = (Math.random() * 2 - 1) * (0.4 * swell + 0.9 * crash);
+        }
+        const src = c.createBufferSource(); src.buffer = buf;
+        const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700;
+        const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + 0.25); g.gain.setValueAtTime(0.18, t + dur - 0.3); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        src.connect(lp).connect(g).connect(c.destination); src.start(t); src.stop(t + dur + 0.05);
+        for (let k = 1; k < dur; k += 1.4 + Math.random() * 0.6) { setTimeout(() => self.seagull(), k * 1000); }
+        setTimeout(() => self.creak(), dur * 400);
+      } catch (e) {}
+    },
+    bell() {
+      try { const c = ac(); const t = c.currentTime;
+        [880, 1320, 1760].forEach((f, i) => { const o = c.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(f, t); const g = envGain(c, t, 0.18 / (i + 1), 0.005, 1.6); o.connect(g).connect(c.destination); o.start(t); o.stop(t + 1.7); });
+      } catch (e) {}
+    },
+    splash() {
+      try { const c = ac(); const t = c.currentTime; const dur = 1.1;
+        const bufSize = Math.floor(c.sampleRate * dur); const buf = c.createBuffer(1, bufSize, c.sampleRate); const d = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) { d[i] = (Math.random() * 2 - 1); }
+        const src = c.createBufferSource(); src.buffer = buf;
+        const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(1800, t); bp.frequency.exponentialRampToValueAtTime(300, t + dur); bp.Q.value = 0.9;
+        const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.45, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        src.connect(bp).connect(g).connect(c.destination); src.start(t); src.stop(t + dur + 0.05);
+        const o = c.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(55, t + 0.3);
+        const og = c.createGain(); og.gain.setValueAtTime(0.0001, t); og.gain.exponentialRampToValueAtTime(0.3, t + 0.01); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+        o.connect(og).connect(c.destination); o.start(t); o.stop(t + 0.4);
+      } catch (e) {}
+    },
+    pop() {
+      try { const c = ac(); const t = c.currentTime;
+        const o = c.createOscillator(); o.type = 'triangle'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(880, t + 0.08);
+        const g = envGain(c, t, 0.3, 0.005, 0.12); o.connect(g).connect(c.destination); o.start(t); o.stop(t + 0.15);
+      } catch (e) {}
+    }
+  };
+})();
+
 // Shared journey mechanics: scroll-driven route, reveals, compass cursor.
 export function attachRoute(c, refs) {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -31,13 +120,11 @@ export function attachRoute(c, refs) {
     if (!len) return; const done = refs.done.current, bar = refs.bar.current, mk = refs.marker.current, root = refs.root.current;
     const prog = Math.max(0, Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)));
     if (bar) bar.style.width = (prog * 100).toFixed(2) + '%';
-    const k = 0.45 + prog * 0.5;
-    const targetY = scrollY + innerHeight * k - rootTop; let lo = 0, hi = len, L = 0;
+    const k = 0.45 + prog * 0.5; const targetY = scrollY + innerHeight * k - rootTop; let lo = 0, hi = len, L = 0;
     for (let i = 0; i < 22; i++) { const mid = (lo + hi) / 2; if (done.getPointAtLength(mid).y < targetY) lo = mid; else hi = mid; L = mid; }
     const p0 = done.getPointAtLength(0), pN = done.getPointAtLength(len);
     if (targetY <= p0.y) L = 0; if (targetY >= pN.y) L = len;
-    L = Math.max(L, prog * len);
-    if (prog > 0.985) L = len;
+    L = Math.max(L, prog * len); if (prog > 0.985) L = len;
     done.style.strokeDashoffset = len - L; const pt = done.getPointAtLength(L);
     const mx = Math.max(70, Math.min(root.offsetWidth - 70, pt.x));
     mk.style.transform = `translate(${mx}px, ${pt.y}px)`; mk.style.opacity = L > 60 ? '1' : '0';
@@ -50,54 +137,6 @@ export function attachRoute(c, refs) {
   return { setupReveals, rebuild: onResize, destroy() { removeEventListener('scroll', onScroll); removeEventListener('resize', onResize); io.disconnect(); ro.disconnect(); } };
 }
 
-// Synthesized ship sounds via WebAudio — foghorn on unroll, waves while sailing, bell on arrive.
-const JAudio = (() => {
-  let ctx = null;
-  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
-  const envGain = (c, t0, peak, atk, dec) => { const g = c.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(peak, t0 + atk); g.gain.exponentialRampToValueAtTime(0.0001, t0 + atk + dec); return g; };
-  return {
-    foghorn() {
-      try { const c = ac(); const t = c.currentTime;
-        [110, 73].forEach((f, i) => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f, t); const g = envGain(c, t + i * 0.15, 0.22, 0.08, 1.1); o.connect(g).connect(c.destination); o.start(t + i * 0.15); o.stop(t + i * 0.15 + 1.3); });
-      } catch (e) {}
-    },
-    waves(duration) {
-      try { const c = ac(); const t = c.currentTime; const bufSize = Math.floor(c.sampleRate * Math.max(0.5, duration)); const buf = c.createBuffer(1, bufSize, c.sampleRate); const d = buf.getChannelData(0);
-        for (let i = 0; i < bufSize; i++) { const n = (Math.random() * 2 - 1); const env = 0.5 + 0.5 * Math.sin(i / c.sampleRate * 2 * Math.PI * 0.6); d[i] = n * 0.6 * env; }
-        const src = c.createBufferSource(); src.buffer = buf;
-        const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 500;
-        const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.09, t + 0.3); g.gain.setValueAtTime(0.09, t + duration - 0.3); g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-        src.connect(lp).connect(g).connect(c.destination); src.start(t); src.stop(t + duration + 0.05);
-      } catch (e) {}
-    },
-    bell() {
-      try { const c = ac(); const t = c.currentTime;
-        [880, 1320, 1760].forEach((f, i) => { const o = c.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(f, t); const g = envGain(c, t, 0.18 / (i + 1), 0.005, 1.6); o.connect(g).connect(c.destination); o.start(t); o.stop(t + 1.7); });
-      } catch (e) {}
-    },
-    splash() {
-      try { const c = ac(); const t = c.currentTime; const dur = 1.1;
-        const bufSize = Math.floor(c.sampleRate * dur); const buf = c.createBuffer(1, bufSize, c.sampleRate); const d = buf.getChannelData(0);
-        for (let i = 0; i < bufSize; i++) { d[i] = (Math.random() * 2 - 1); }
-        const src = c.createBufferSource(); src.buffer = buf;
-        const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(1800, t); bp.frequency.exponentialRampToValueAtTime(300, t + dur); bp.Q.value = 0.9;
-        const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.45, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-        src.connect(bp).connect(g).connect(c.destination); src.start(t); src.stop(t + dur + 0.05);
-        // low thud
-        const o = c.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(55, t + 0.3);
-        const og = c.createGain(); og.gain.setValueAtTime(0.0001, t); og.gain.exponentialRampToValueAtTime(0.3, t + 0.01); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
-        o.connect(og).connect(c.destination); o.start(t); o.stop(t + 0.4);
-      } catch (e) {}
-    },
-    pop() {
-      try { const c = ac(); const t = c.currentTime;
-        const o = c.createOscillator(); o.type = 'triangle'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(880, t + 0.08);
-        const g = envGain(c, t, 0.3, 0.005, 0.12); o.connect(g).connect(c.destination); o.start(t); o.stop(t + 0.15);
-      } catch (e) {}
-    }
-  };
-})();
-
 // Travel transitions: links with data-travel="<place>" unroll a full-screen treasure map, walk the marker along the dotted trail from here to there, then navigate.
 const PLACES = [
   { id: 'map', label: 'HOME MAP', x: 60, y: 185 },
@@ -106,7 +145,7 @@ const PLACES = [
   { id: 'veloce', label: 'VELOCE UI', x: 365, y: 85 },
   { id: 'build', label: "LET'S BUILD", x: 445, y: 225 }
 ];
-export function attachTravel({ here, onUnroll }) {
+export function attachTravel({ here, onUnroll, beforeGo }) {
   if (window.__jTravel) { window.__jTravel.destroy(); }
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const F = "'Space Mono',monospace", A = "'Archivo Black',sans-serif", INK = '#3B2A1A', RED = '#9B2222';
@@ -142,8 +181,9 @@ export function attachTravel({ here, onUnroll }) {
   const go = (href, toId) => {
     const from = find(here), to = find(toId);
     if (reduced || from.id === to.id) { location.href = href; return; }
+    if (document.querySelector('[data-jmap]') || window.__jGoing) return; window.__jGoing = true;
+    (beforeGo ? beforeGo(toId) : Promise.resolve()).then(() => {
     onUnroll && onUnroll();
-    if (document.querySelector('[data-jmap]')) return;
     const o = overlay(from, to, false), path = o.querySelector('[data-route]'), mk = o.querySelector('[data-marker]');
     JAudio.foghorn();
     const total = path.getTotalLength(), a = arcAt(path, PLACES.indexOf(from)), b = arcAt(path, PLACES.indexOf(to)), lo = Math.min(a, b), hi = Math.max(a, b), len = hi - lo, fwd = b >= a;
@@ -155,9 +195,10 @@ export function attachTravel({ here, onUnroll }) {
       if (!t0) t0 = now; const t = Math.min(1, (now - t0) / dur), k = ease(t), L = fwd ? lo + len * k : hi - len * k, pt = path.getPointAtLength(L);
       setReveal(k); const ahead = path.getPointAtLength(Math.max(0, Math.min(total, L + (fwd ? 2 : -2)))); const flip = ahead.x < pt.x ? -1 : 1; const bob = Math.sin(now / 120) * 1.5;
       mk.setAttribute('transform', `translate(${pt.x} ${pt.y + bob})`); mk.querySelector('[data-ship]').setAttribute('transform', `scale(${flip} 1) rotate(${Math.atan2(ahead.y - pt.y, Math.abs(ahead.x - pt.x)) * 180 / Math.PI * .35})`);
-      if (t < 1) requestAnimationFrame(step); else { sessionStorage.setItem('journey-arrive', JSON.stringify({ from: from.id, to: to.id })); sessionStorage.setItem('journey-skip-intro', '1'); setTimeout(() => { if (href.startsWith('#')) { sessionStorage.removeItem('journey-arrive'); o.style.opacity = '0'; setTimeout(() => o.remove(), 300); const t = document.querySelector(href); t && window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 20, behavior: 'smooth' }); } else location.href = href; }, 300); }
+      if (t < 1) requestAnimationFrame(step); else { sessionStorage.setItem('journey-arrive', JSON.stringify({ from: from.id, to: to.id })); sessionStorage.setItem('journey-skip-intro', '1'); setTimeout(() => { if (href.startsWith('#')) { window.__jGoing = false; sessionStorage.removeItem('journey-arrive'); o.style.opacity = '0'; setTimeout(() => o.remove(), 300); const t = document.querySelector(href); t && window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 20, behavior: 'smooth' }); } else location.href = href; }, 300); }
     };
     setTimeout(() => requestAnimationFrame(step), 900);
+    });
   };
   const onClick = e => {
     const a = e.target.closest && e.target.closest('a[data-travel]'); if (!a || e.metaKey || e.ctrlKey || e.button) return;
@@ -168,7 +209,7 @@ export function attachTravel({ here, onUnroll }) {
     const raw = sessionStorage.getItem('journey-arrive');
     if (!raw) { document.body.classList.add('jready'); }
     if (raw) { sessionStorage.removeItem('journey-arrive'); const { from, to } = JSON.parse(raw);
-      if (to === here && !reduced) { const o = overlay(find(from), find(to), true); JAudio.bell(); const sh0 = o.querySelector('[data-sheet]'); sh0.style.transition = 'none'; sh0.style.clipPath = 'inset(0 0 0 0)'; sh0.querySelector('[data-roll]').style.transition = 'none'; sh0.querySelector('[data-roll]').style.top = '-40px'; o.style.transition = 'none'; o.style.opacity = '1'; o.style.background = 'transparent'; const mk = o.querySelector('[data-marker]'), tgt = find(to), p = o.querySelector('[data-route]'); const a = arcAt(p, PLACES.indexOf(find(from))), b = arcAt(p, PLACES.indexOf(tgt)); p.style.strokeDasharray = `0 ${Math.min(a, b)} ${Math.abs(b - a)} ${p.getTotalLength()}`; mk.setAttribute('transform', `translate(${tgt.x} ${tgt.y})`); requestAnimationFrame(() => document.body.classList.add('jready'));
+      if (to === here && !reduced) { const o = overlay(find(from), find(to), true); JAudio.bell(); const mk = o.querySelector('[data-marker]'), tgt = find(to), p = o.querySelector('[data-route]'); const a = arcAt(p, PLACES.indexOf(find(from))), b = arcAt(p, PLACES.indexOf(tgt)); p.style.strokeDasharray = `0 ${Math.min(a, b)} ${Math.abs(b - a)} ${p.getTotalLength()}`; mk.setAttribute('transform', `translate(${tgt.x} ${tgt.y})`); o.style.background = 'transparent'; requestAnimationFrame(() => document.body.classList.add('jready'));
         setTimeout(() => { o.style.transition = 'opacity .7s ease'; o.style.opacity = '0'; setTimeout(() => o.remove(), 720); }, 1100); } else if (to === here) { document.body.classList.add('jready'); } }
   } catch (err) { document.body.classList.add('jready'); }
   return (window.__jTravel = { go, destroy() { removeEventListener('click', onClick); window.__jTravel = null; } });
@@ -237,15 +278,15 @@ export function attachBottle({ onSplash } = {}) {
       wait(820, () => { letter.style.visibility = 'hidden'; letter.style.opacity = '0'; tube.style.visibility = 'visible'; tube.style.opacity = '1'; });
       wait(1150, bottleIn);
     };
-    // 3 bottle rises with cork on; cork pops; the SAME tube (your rolled letter) slides into the neck, down into the bottle; cork returns
+    // 3 bottle rises with cork on; cork pops; tube shrinks + slides into the neck; cork returns
     const bottleIn = () => {
       cap.textContent = 'UNCORKING…';
       scroll.style.display = 'none';
       bottle.style.opacity = '1'; bottle.style.transform = 'translateY(0)';
       tube.style.transform = 'translateY(-150px) rotate(-2deg)';
       wait(650, () => { cork.style.transform = 'translateY(-70px) rotate(-28deg)'; JAudio.pop(); onSplash && onSplash('cork'); });
-      wait(1150, () => { cap.textContent = 'BOTTLING…'; tube.style.transition = 'transform 1.1s cubic-bezier(.5,0,.4,1), opacity .25s 1s'; tube.style.transform = 'translateY(80px) rotate(90deg) scale(.26)'; });
-      wait(2300, () => { tube.style.opacity = '0'; });
+      wait(1150, () => { cap.textContent = 'BOTTLING…'; tube.style.transition = 'transform .7s cubic-bezier(.6,0,.4,1), opacity .2s .5s'; tube.style.transform = 'translateY(80px) rotate(90deg) scale(.26)'; });
+      wait(1750, () => { tube.style.opacity = '0'; });
       wait(2500, () => { cork.style.transform = 'translateY(0) rotate(0deg)'; });
       wait(2900, () => { bottle.style.transition = 'transform .1s'; bottle.style.transform = 'translateY(0) scale(1.04,.96)'; JAudio.pop(); onSplash && onSplash('cork'); });
       wait(3020, () => { bottle.style.transform = 'translateY(0) scale(1)'; });
@@ -320,7 +361,8 @@ export function attachCursor(refs) {
 // Intro: once per session, a full-screen aged chart — islands, sea, sea-monster, compass rose, ship — then a quill writes the greeting on a pinned letter.
 export function attachIntro({ onDone } = {}) {
   // plays on every fresh page load; skipped only when arriving via an in-site travel transition
-  if (sessionStorage.getItem('journey-skip-intro') || document.querySelector('[data-jintro]')) { sessionStorage.removeItem('journey-skip-intro'); onDone && onDone(); return { destroy() {} }; }
+  if (window.__jIntro && window.__jIntro.live) { onDone && window.__jIntro.onDone.push(onDone); return window.__jIntro; }
+  if (sessionStorage.getItem('journey-skip-intro')) { sessionStorage.removeItem('journey-skip-intro'); onDone && onDone(); return { destroy() {} }; }
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const F = "'Space Mono',monospace", A = "'Archivo Black',sans-serif", INK = '#3B2A1A', RED = '#9B2222', LAND = '#D9BE86', LAND2 = '#B8984F', SEA = '#C9B98E';
   const o = document.createElement('div'); o.setAttribute('data-jintro', ''); o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Welcome');
@@ -370,17 +412,117 @@ export function attachIntro({ onDone } = {}) {
   document.body.appendChild(o);
   const q = s => o.querySelector(s), sheet = q('[data-sheet]'), letter = q('[data-letter]'), text = q('[data-text]'), quill = q('[data-quill]');
   const msg = "Hi, I'm Yash.\nBe ready for\nthis journey.";
-  let done = false, timers = [];
+  let done = false, timers = []; const inst = { live: true, onDone: onDone ? [onDone] : [], destroy() {} };
+  window.__jIntro = inst;
   const wait = (ms, fn) => timers.push(setTimeout(fn, ms));
-  const end = () => { if (done) return; done = true; timers.forEach(clearTimeout);
+  const end = () => { if (done) return; done = true; inst.live = false; timers.forEach(clearTimeout);
     sheet.style.transition = 'transform .8s cubic-bezier(.6,0,.4,1)'; sheet.style.transform = 'translateY(-120vh)'; o.style.transition = 'opacity .4s .5s'; o.style.opacity = '0';
-    setTimeout(() => { o.remove(); onDone && onDone(); }, 950); };
+    setTimeout(() => { o.remove(); inst.onDone.forEach(f => f()); }, 950); };
   q('[data-skip]').addEventListener('click', end);
-  if (reduced) { sheet.style.transition = 'none'; sheet.style.transform = 'none'; letter.style.opacity = '1'; text.textContent = msg; wait(1400, end); return { destroy: end }; }
+  if (reduced) { sheet.style.transition = 'none'; sheet.style.transform = 'none'; letter.style.opacity = '1'; text.textContent = msg; wait(1400, end); return inst; }
   requestAnimationFrame(() => { sheet.style.transform = 'translateY(0)'; });
   wait(700, () => { letter.style.opacity = '1'; });
   const placeQuill = () => { const r = document.createRange(); const n = text.firstChild; if (!n || !n.length) return; r.setStart(n, n.length - 1); r.setEnd(n, n.length); const b = r.getBoundingClientRect(), lb = letter.getBoundingClientRect(); quill.style.transform = `translate(${b.right - lb.left - 6}px, ${b.bottom - lb.top - 84}px)`; };
   let i = 0; const type = () => { text.textContent = msg.slice(0, ++i); quill.style.opacity = '1'; placeQuill(); if (i < msg.length) wait(msg[i - 1] === '\n' ? 220 : 70 + Math.random() * 50, type); else { wait(300, () => { quill.style.opacity = '0'; }); wait(1500, end); } };
   wait(1300, type);
-  return { destroy: end };
+  return inst;
 }
+
+// Easy scroll: wheel input is eased toward its target so the camera glides. Touch, keyboard and scrollbar behave natively.
+export function attachSmoothScroll() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || matchMedia('(pointer: coarse)').matches || window.__jSmooth) return window.__jSmooth || { destroy() {} };
+  let target = scrollY, cur = scrollY, raf = 0, active = false;
+  const max = () => document.documentElement.scrollHeight - innerHeight;
+  const tick = () => { raf = 0; cur += (target - cur) * .12; if (Math.abs(target - cur) < .5) { cur = target; active = false; } window.scrollTo({ top: cur, behavior: 'instant' }); if (active) raf = requestAnimationFrame(tick); };
+  const onWheel = e => {
+    if (document.documentElement.style.overflow === 'hidden' || e.ctrlKey) return;
+    e.preventDefault();
+    if (!active) { cur = scrollY; target = scrollY; }
+    const d = e.deltaMode === 1 ? e.deltaY * 32 : e.deltaMode === 2 ? e.deltaY * innerHeight : e.deltaY;
+    target = Math.max(0, Math.min(max(), target + d)); active = true; if (!raf) raf = requestAnimationFrame(tick);
+  };
+  const onNative = () => { if (!active) { cur = scrollY; target = scrollY; } };
+  const jump = top => { if (!active) { cur = scrollY; } target = Math.max(0, Math.min(max(), top)); active = true; if (!raf) raf = requestAnimationFrame(tick); };
+  const prevSB = document.documentElement.style.scrollBehavior; document.documentElement.style.scrollBehavior = 'auto';
+  addEventListener('wheel', onWheel, { passive: false }); addEventListener('scroll', onNative, { passive: true });
+  return (window.__jSmooth = { jump, destroy() { removeEventListener('wheel', onWheel); removeEventListener('scroll', onNative); document.documentElement.style.scrollBehavior = prevSB; window.__jSmooth = null; } });
+}
+
+// ---------- Island art (side view, neo-brutalist flat) ----------
+const INK = '#111';
+const rnd = (seed, k) => { const v = Math.sin(seed * 999.1 + k * 37.7) * 43758.5; return v - Math.floor(v); };
+const T = (x, y, s = 1) => `translate(${(+x).toFixed(0)} ${(+y).toFixed(0)}) scale(${s})`;
+const tree = (x, y, s = 1) => `<g transform="${T(x, y, s)}" stroke="${INK}" stroke-width="4" stroke-linecap="round" fill="none"><path d="M0 0 L0 -52"></path><path d="M0 -52 q 28 -10 48 10"></path><path d="M0 -52 q -28 -10 -48 10"></path><path d="M0 -52 q 10 -28 38 -32"></path><path d="M0 -52 q -10 -28 -38 -32"></path><path d="M0 -52 q 0 -30 12 -46"></path></g>`;
+const mountain = (x, y, s = 1, fill = '#C9B8FF') => `<g transform="${T(x, y, s)}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"><path d="M-90 0 L-30 -100 L0 -56 L44 -130 L116 0 Z" fill="${fill}"></path><path d="M44 -130 L26 -94 L44 -84 L64 -98 Z" fill="#FFF6E8"></path><path d="M-30 -100 L-42 -78 L-20 -80 Z" fill="#FFF6E8"></path></g>`;
+const hut = (x, y, roof = '#FF8A7A', s = 1) => `<g transform="${T(x, y, s)}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"><rect x="-26" y="-30" width="52" height="30" fill="#FFF6E8"></rect><path d="M-36 -30 L0 -64 L36 -30 Z" fill="${roof}"></path><rect x="-8" y="-18" width="16" height="18" fill="${INK}"></rect></g>`;
+const cabin = (x, y, roof = '#C9B8FF') => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"><rect x="-44" y="-44" width="88" height="44" fill="#FFF6E8"></rect><path d="M-54 -44 L0 -86 L54 -44 Z" fill="${roof}"></path><rect x="18" y="-104" width="14" height="30" fill="${INK}"></rect><rect x="-30" y="-34" width="18" height="18" fill="#A9D8FF"></rect><rect x="8" y="-30" width="18" height="30" fill="${INK}"></rect></g>`;
+const lighthouse = (x, y, s = 1) => `<g transform="${T(x, y, s)}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"><path d="M-24 0 L-15 -104 L15 -104 L24 0 Z" fill="#FFF6E8"></path><path d="M-21 -34 L21 -34 L23 -10 L-23 -10 Z" fill="#FF8A7A"></path><path d="M-17 -80 L17 -80 L18 -60 L-18 -60 Z" fill="#FF8A7A"></path><rect x="-18" y="-128" width="36" height="24" fill="#FFE566"></rect><path d="M-22 -128 L0 -146 L22 -128 Z" fill="${INK}"></path></g>`;
+const banner = (x, y, label, c = '#FFE566', w = 84) => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"><path d="M0 0 L0 -96"></path><rect x="0" y="-96" width="${w}" height="32" fill="${c}"></rect><text x="${w / 2}" y="-73" text-anchor="middle" stroke="none" style="font:700 15px 'Space Mono',monospace;fill:${INK}">${label}</text></g>`;
+const numberPost = (x, y, n, c) => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"><path d="M0 0 L0 -58"></path><rect x="-24" y="-98" width="48" height="40" fill="${c}"></rect><text y="-69" text-anchor="middle" stroke="none" style="font:400 20px 'Archivo Black',sans-serif;fill:${INK}">${n}</text></g>`;
+const signpost = (x, y) => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"><path d="M0 0 L0 -96"></path><path d="M-4 -92 L46 -92 L58 -80 L46 -68 L-4 -68 Z" fill="#FFE566"></path><path d="M4 -62 L-46 -62 L-58 -50 L-46 -38 L4 -38 Z" fill="#A9D8FF"></path></g>`;
+const xflag = (x, y) => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="4"><path d="M0 0 L0 -70"></path><rect x="0" y="-70" width="46" height="32" fill="#FFF6E8"></rect><path d="M10 -62 L36 -46 M36 -62 L10 -46" stroke="#9B2222" stroke-width="5" stroke-linecap="round"></path></g>`;
+const rose = (x, y) => `<g transform="${T(x, y - 44, 1)}" stroke="${INK}" fill="none" stroke-width="4"><circle r="40" fill="#FFF6E8"></circle><path d="M0 -38 L8 0 L0 38 L-8 0 Z" fill="#9B2222"></path><path d="M-38 0 L0 8 L38 0 L0 -8 Z" fill="${INK}"></path></g>`;
+const anchor = (x, y) => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="5" stroke-linecap="round" fill="none"><path d="M0 -8 L0 -72"></path><circle cx="0" cy="-82" r="9"></circle><path d="M-24 -56 L24 -56"></path><path d="M-36 -26 q 36 40 72 0"></path><path d="M-36 -26 l -8 10 M36 -26 l 8 10"></path></g>`;
+const telescope = (x, y) => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="4" stroke-linecap="round"><path d="M0 -44 L-24 0 M0 -44 L24 0 M0 -44 L0 0"></path><g transform="rotate(-28 0 -48)"><rect x="-14" y="-56" width="76" height="16" fill="${INK}"></rect><rect x="56" y="-60" width="24" height="24" fill="#FFE566"></rect></g></g>`;
+const monitor = (x, y) => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="4"><path d="M-8 0 L-8 -46 M8 0 L8 -46"></path><rect x="-66" y="-112" width="132" height="66" fill="${INK}"></rect><text x="-52" y="-70" stroke="none" style="font:700 18px 'Space Mono',monospace;fill:#B8F2D0">>_ hello</text></g>`;
+const notchMonument = (x, y) => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="4"><rect x="-90" y="-14" width="180" height="14" fill="#E9D9A6"></rect><path d="M-70 -14 L-56 -44 L56 -44 L70 -14 Z" fill="#FFF6E8"></path><rect x="-74" y="-86" width="148" height="38" rx="19" fill="${INK}"></rect><circle cx="40" cy="-67" r="7" fill="#B8F2D0" stroke="none"></circle><rect x="-56" y="-72" width="60" height="10" rx="5" fill="#FFF6E8" stroke="none" opacity=".35"></rect></g>`;
+const forge = (x, y) => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"><rect x="-70" y="-70" width="140" height="70" fill="#FFF6E8"></rect><path d="M-80 -70 L0 -110 L80 -70 Z" fill="#FFB7D9"></path><rect x="30" y="-140" width="20" height="40" fill="${INK}"></rect><circle cx="48" cy="-156" r="10" fill="#FFF6E8"></circle><circle cx="66" cy="-176" r="14" fill="#FFF6E8"></circle><rect x="-50" y="-44" width="44" height="44" fill="${INK}"></rect><circle cx="-28" cy="-24" r="9" fill="#FF8A7A" stroke="none"></circle><path d="M6 -22 L52 -22 L46 -34 L58 -34 L58 -46 L0 -46 L0 -34 L12 -34 Z" fill="${INK}"></path></g>`;
+const windmill = (x, y, s = 1) => `<g transform="${T(x, y, s)}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"><path d="M-20 0 L-11 -96 L11 -96 L20 0 Z" fill="#FFF6E8"></path><rect x="-10" y="-36" width="20" height="36" fill="${INK}"></rect><g transform="translate(0 -100)"><g style="transform-box:fill-box;transform-origin:center;animation:spin 11s linear infinite"><path d="M0 0 L0 -62 L16 -62 Z M0 0 L62 0 L62 16 Z M0 0 L0 62 L-16 62 Z M0 0 L-62 0 L-62 -16 Z" fill="#FFE566" stroke-width="3"></path></g><circle r="7" fill="${INK}"></circle></g></g>`;
+const easel = (x, y) => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M-26 0 L-6 -96 M26 0 L6 -96 M0 0 L0 -34"></path><rect x="-50" y="-136" width="100" height="70" fill="#FFF6E8"></rect><path d="M-38 -88 q 22 -34 46 -12 t 26 10" fill="none" stroke-dasharray="3 6" stroke-width="3"></path><path d="M14 -82 l 10 10 m 0 -10 l -10 10" stroke="#9B2222"></path></g>`;
+const mailbox = (x, y) => `<g transform="${T(x, y, 1)}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"><path d="M0 0 L0 -52"></path><rect x="-30" y="-96" width="60" height="44" rx="10" fill="#FF8A7A"></rect><rect x="-18" y="-82" width="36" height="6" fill="${INK}" stroke="none"></rect><path d="M30 -90 L44 -90 L44 -70" fill="none"></path><path d="M44 -90 L58 -84 L44 -78 Z" fill="#FFE566"></path></g>`;
+const bottle = (x, y) => `<g transform="${T(x, y, 1)} rotate(-72)" stroke="${INK}" stroke-width="3" stroke-linejoin="round"><rect x="-9" y="-44" width="18" height="44" rx="7" fill="#A9D8FF"></rect><rect x="-5" y="-56" width="10" height="14" fill="#B07A3E"></rect><rect x="-5" y="-34" width="10" height="20" rx="3" fill="#FFF6E8" stroke="none"></rect></g>`;
+const peakFlag = (x, hyx, s, label, c) => banner(x + 44 * s - 4, hyx - 130 * s + 4, label, c, 72);
+const FEATURES = {
+  harbor: (I, hy) => anchor(-210, hy(-210)) + hut(-110, hy(-110), '#FFE566') + hut(-20, hy(-20), '#FF8A7A') + banner(60, hy(60), 'START', '#B8F2D0') + tree(160, hy(160)) + tree(240, hy(240), .8),
+  quay: (I, hy) => cabin(-130, hy(-130)) + telescope(-10, hy(-10)) + monitor(120, hy(120)) + tree(230, hy(230), .8),
+  atoll: (I, hy) => [-250, -150, -50, 50, 150, 250].map((x, k) => numberPost(x, hy(x), '0' + (k + 1), ['#FFB7D9', '#A9D8FF', '#B8F2D0', '#C9B8FF', '#FFC9A3', '#FF8A7A'][k])).join('') + tree(-320, hy(-320), .7) + tree(320, hy(320), .7),
+  shipped: (I, hy) => notchMonument(-200, hy(-200)) + forge(-20, hy(-20)) + windmill(160, hy(160)) + xflag(270, hy(270)) + tree(-300, hy(-300), .8),
+  cay: (I, hy) => rose(-180, hy(-180)) + easel(-50, hy(-50)) + signpost(80, hy(80)) + banner(180, hy(180), 'DAY 0', '#FFE566', 74) + tree(-270, hy(-270), .8),
+  ridge: (I, hy) => [[-200, .62, '2022', '#FFE566'], [-70, .82, '2023', '#A9D8FF'], [70, 1.02, '2024', '#FFB7D9'], [215, 1.2, 'NOW', '#B8F2D0']].map(([x, s, l, c]) => mountain(x, hy(x), s, c) + peakFlag(x, hy(x), s, l, c)).join(''),
+  haven: (I, hy) => lighthouse(-40, hy(-40), 1.15) + mailbox(90, hy(90)) + hut(-190, hy(-190), '#FFE566') + tree(-270, hy(-270)) + bottle(210, 8) + tree(260, hy(260), .8),
+  notch: (I, hy) => notchMonument(-30, hy(-30)) + hut(-200, hy(-200), '#A9D8FF') + hut(150, hy(150), '#FFE566', .9) + tree(-290, hy(-290), .8) + tree(250, hy(250), .8),
+  forge: (I, hy) => forge(0, hy(0)) + hut(-190, hy(-190), '#FFB7D9') + banner(160, hy(160), '24 MB', '#FFE566', 74) + tree(240, hy(240), .8) + tree(-280, hy(-280), .7),
+  wind: (I, hy) => windmill(-130, hy(-130)) + windmill(80, hy(80), .8) + banner(190, hy(190), '0 kB', '#B8F2D0', 70) + tree(-270, hy(-270), .8) + hut(-20, hy(-20), '#C9B8FF', .8)
+};
+export const CASE_ISLANDS = {
+  notch: { name: 'NOTCH ISLAND', sub: 'CAMP 01 · NOTCHISLAND', x: 700, rx: 320, ry: 170, grass: '#A9D8FF', kind: 'notch', seed: 21 },
+  apiforge: { name: 'THE FORGE', sub: 'CAMP 02 · APIFORGE', x: 700, rx: 310, ry: 190, grass: '#FFB7D9', kind: 'forge', seed: 23 },
+  veloce: { name: 'THE WINDS', sub: 'CAMP 03 · VELOCE UI', x: 700, rx: 320, ry: 160, grass: '#C9B8FF', kind: 'wind', seed: 27 }
+};
+const LIFT = { forge: 140, shipped: 140, wind: 130, ridge: 40, quay: 40, haven: 50, cay: 60, atoll: 10, notch: 20, harbor: 20 };
+export function islandMarkup(I, base) {
+  const lift = LIFT[I.kind] || 30;
+  const n = 10, prof = []; for (let k = 0; k <= n; k++) { const u = k / n; prof.push(k === 0 || k === n ? 0 : I.ry * Math.sin(u * Math.PI) * (.55 + .45 * rnd(I.seed, k))); }
+  const px = k => -I.rx + 2 * I.rx * k / n;
+  const hy = x => { const u = (x + I.rx) / (2 * I.rx) * n, k = Math.max(0, Math.min(n - 1, Math.floor(u))), f = u - k; return -(prof[k] + (prof[k + 1] - prof[k]) * f) + 6; };
+  let hill = `M ${px(0)} 0`; for (let k = 1; k < n; k++) { const mx = (px(k) + px(k + 1)) / 2, my = -(prof[k] + prof[k + 1]) / 2; hill += ` Q ${px(k)} ${-prof[k]} ${mx.toFixed(1)} ${my.toFixed(1)}`; } hill += ` L ${px(n)} 0 Z`;
+  const sand = `M ${-I.rx - 50} 0 Q ${-I.rx - 50} 36 ${-I.rx} 36 L ${I.rx} 36 Q ${I.rx + 50} 36 ${I.rx + 50} 0 Z`;
+  return `<g transform="translate(${I.x} ${base})"><ellipse cx="0" cy="44" rx="${I.rx * 1.35}" ry="30" fill="#CFE9FF" opacity=".9"></ellipse><path d="${hill}" transform="translate(0 44) scale(1 -0.3)" fill="${I.grass}" opacity=".28"></path><path d="${sand}" fill="#E9D9A6" stroke="${INK}" stroke-width="5" stroke-linejoin="round"></path><path d="${hill}" fill="${I.grass}" stroke="${INK}" stroke-width="5" stroke-linejoin="round"></path>${(FEATURES[I.kind] || FEATURES.harbor)(I, hy)}<g transform="translate(${I.rx + 10} 14)" stroke="${INK}" stroke-width="4"><rect x="36" y="10" width="10" height="44" fill="${INK}" stroke="none"></rect><rect x="104" y="10" width="10" height="44" fill="${INK}" stroke="none"></rect><rect x="0" y="-8" width="150" height="16" fill="#B07A3E"></rect></g><text y="${-I.ry - 58 - lift}" text-anchor="middle" paint-order="stroke" stroke="#FFF6E8" stroke-width="10" style="font:400 36px 'Archivo Black',sans-serif;fill:${INK};letter-spacing:.14em">${I.name}</text><text y="${-I.ry - 26 - lift}" text-anchor="middle" paint-order="stroke" stroke="#FFF6E8" stroke-width="8" style="font:700 15px 'Space Mono',monospace;fill:${INK};letter-spacing:.14em">${I.sub}</text></g>`;
+}
+const SHIP_G = `<g stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"><path d="M-48 10 L48 10 L32 28 L-32 28 Z" fill="${INK}"></path><path d="M0 10 L0 -54" stroke-width="4.5"></path><path d="M4 -50 L44 -4 L4 -4 Z" fill="#FFF6E8"></path><path d="M-4 -40 L-32 -8 L-4 -8 Z" fill="#FF8A7A"></path><path d="M0 -54 L20 -48 L0 -40 Z" fill="#FFE566" stroke-width="2.5"></path></g>`;
+export function shipMarkup() { return `<svg viewBox="-60 -70 120 100" width="120" height="100" style="position:absolute;left:-60px;top:-70px;overflow:visible">${SHIP_G}</svg>`; }
+// Case-page banner: the camp's island, sky, sea — and the ship sailing in to the pier on load.
+export function mountScene(el, key) {
+  const I = CASE_ISLANDS[key]; if (!el || !I) return;
+  const W = 1400, H = 560, base = 390, water = 462, reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const far = [[120, 220, 60], [460, 160, 40], [1080, 260, 70], [1320, 180, 50]].map(([x, rw, rh]) => `<path d="M ${x - rw} ${base} q ${rw * .5} ${-rh} ${rw} ${-rh * .4} q ${rw * .4} ${-rh * .6} ${rw} ${rh} Z" fill="#B9D6EE" stroke="${INK}" stroke-width="3" opacity=".8"></path>`).join('');
+  const waves = Array.from({ length: 34 }, (_, k) => { const x = rnd(3, k) * W, y = base + 40 + rnd(4, k) * (H - base - 40), sc = .7 + (y - base) / (H - base); return `<path d="M ${x.toFixed(0)} ${y.toFixed(0)} q ${14 * sc} ${-8 * sc} ${28 * sc} 0 t ${28 * sc} 0" fill="none" stroke="#FFF6E8" stroke-width="3" stroke-linecap="round" opacity=".8"></path>`; }).join('');
+  const clouds = [[180, 90, 1], [620, 60, .7], [1150, 110, .9]].map(([x, y, s]) => `<g transform="translate(${x} ${y}) scale(${s})" style="${reduced ? '' : 'animation:cloudDrift 50s ease-in-out infinite alternate'}"><path d="M-90 20 Q -110 -10 -70 -20 Q -60 -56 -10 -40 Q 20 -70 60 -36 Q 110 -40 100 0 Q 120 30 80 30 L -70 30 Q -110 30 -90 20 Z" fill="#FFF6E8" stroke="${INK}" stroke-width="4"></path></g>`).join('');
+  const pierX = I.x + I.rx + 110, routeD = `M -200 ${water} C 200 ${water + 26}, 500 ${water - 22}, ${pierX} ${water}`;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;overflow:hidden">
+    <defs><linearGradient id="csky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FC7EE"></stop><stop offset="1" stop-color="#EAF6FF"></stop></linearGradient><linearGradient id="csea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8CC6F0"></stop><stop offset="1" stop-color="#3F7FC7"></stop></linearGradient></defs>
+    <rect width="${W}" height="${base}" fill="url(#csky)"></rect><circle cx="1180" cy="120" r="70" fill="#FFE566" stroke="${INK}" stroke-width="5"></circle>${clouds}${far}
+    <rect y="${base}" width="${W}" height="${H - base}" fill="url(#csea)"></rect><path d="M0 ${base} L${W} ${base}" stroke="${INK}" stroke-width="5"></path>
+    <g style="${reduced ? '' : 'animation:waveDrift 7s ease-in-out infinite alternate'}">${waves}</g>
+    ${islandMarkup(I, base)}
+    <path d="${routeD}" fill="none" stroke="${INK}" stroke-width="4" stroke-dasharray="3 18" stroke-linecap="round" opacity=".35"></path>
+    <path data-cwake d="${routeD}" fill="none" stroke="#FFF6E8" stroke-width="9" stroke-linecap="round" opacity=".85" style="stroke-dasharray:0 99999"></path>
+    <path data-croute d="${routeD}" fill="none" stroke="none"></path>
+    <g data-cship><g style="${reduced ? '' : 'animation:shipBob 2.8s ease-in-out infinite'}"><g transform="scale(1.25)">${SHIP_G}</g></g></g>
+  </svg>`;
+  const route = el.querySelector('[data-croute]'), ship = el.querySelector('[data-cship]'), wake = el.querySelector('[data-cwake]'), len = route.getTotalLength();
+  const place = k => { const p = route.getPointAtLength(len * k); ship.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`); wake.style.strokeDasharray = `${(len * k).toFixed(0)} ${len}`; };
+  if (reduced) { place(1); return; }
+  const t0 = performance.now(), dur = 2600; const step = now => { const t = Math.min(1, (now - t0) / dur); place(1 - Math.pow(1 - t, 3)); if (t < 1) requestAnimationFrame(step); }; requestAnimationFrame(step);
+}
+

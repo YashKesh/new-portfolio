@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
-<script>try{if(sessionStorage.getItem("journey-arrive")){document.documentElement.style.background="#F7E9C6";var s=document.createElement("style");s.textContent="html,body{background:#F7E9C6}body{opacity:0;transition:opacity .5s ease}body.jready{opacity:1}";document.head.appendChild(s);setTimeout(function(){document.body&&document.body.classList.add("jready")},2500);}}catch(e){}</script>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script>try{if(sessionStorage.getItem("journey-arrive")){document.documentElement.style.background="#F7E9C6";var s=document.createElement("style");s.textContent="html,body{background:#F7E9C6}body{opacity:0;transition:opacity .5s ease}body.jready{opacity:1}";document.head.appendChild(s);setTimeout(function(){document.body&&document.body.classList.add("jready")},2500);}}catch(e){}</script>
 </head>
 <body>
 <x-dc>
@@ -14,6 +14,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes waveDrift{from{transform:translateX(-10px)}to{transform:translateX(10px)}}
+@keyframes cloudDrift{from{transform:translateX(0)}to{transform:translateX(60px)}}
+@keyframes shipBob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(4px) rotate(1.5deg)}}
 @keyframes sail{0%{transform:translate(140%,30px) rotate(6deg);opacity:0}60%{opacity:1}100%{transform:translate(0,0) rotate(0)}}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -45,11 +49,10 @@ a{color:#111}a:hover{color:#FF8A7A}
     <a href="Case NotchIsland.html" data-travel="notch" style="text-decoration:none;font:700 13px 'Space Mono',monospace;border:3px solid #111;padding:10px 14px;background:#FFF6E8;box-shadow:4px 4px 0 #111;min-height:44px;display:flex;align-items:center" style-hover="transform:translate(2px,2px);box-shadow:2px 2px 0 #111;color:#111">FIRST: NOTCHISLAND →</a>
   </nav>
 
-  <header data-screen-label="Hero" style="position:relative;z-index:3;padding:clamp(48px,8vw,110px) clamp(24px,5vw,64px) clamp(32px,5vw,64px);background:repeating-linear-gradient(0deg,transparent 0 31px,rgba(17,17,17,.07) 31px 32px),repeating-linear-gradient(90deg,transparent 0 31px,rgba(17,17,17,.07) 31px 32px)">
-    <div aria-hidden="true" style="position:absolute;right:clamp(16px,6vw,120px);top:clamp(70px,10vh,120px);width:clamp(70px,8vw,110px);animation:sail 1.6s cubic-bezier(.2,.8,.2,1) .1s both;pointer-events:none;z-index:1">
-      <div style="animation:bob 2.6s ease-in-out infinite"><svg viewBox="0 0 120 110" style="display:block;width:100%;height:auto;overflow:visible"><path d="M14 78 L106 78 L92 100 L28 100 Z" fill="#111"></path><path d="M58 78 L58 10" stroke="#111" stroke-width="5" stroke-linecap="round"></path><path d="M62 14 L104 66 L62 66 Z" fill="#FFF6E8" stroke="#111" stroke-width="4" stroke-linejoin="round"></path><path d="M54 22 L20 62 L54 62 Z" fill="#FF8A7A" stroke="#111" stroke-width="4" stroke-linejoin="round"></path><path d="M0 104 Q 15 96 30 104 T 60 104 T 90 104 T 120 104" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" opacity=".7"></path></svg></div>
-    </div>
+  <header data-screen-label="Hero" style="position:relative;z-index:3;padding:clamp(28px,5vw,64px) clamp(24px,5vw,64px) clamp(32px,5vw,64px)">
     <div style="max-width:1400px;margin:0 auto;position:relative">
+    <div ref="{{ sceneRef }}" aria-hidden="true" style="border:4px solid #111;box-shadow:10px 10px 0 #111;overflow:hidden;margin-bottom:32px;background:#8FC7EE;transform:rotate(-.5deg)"></div>
+
     <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px"><div data-stop="1" style="position:relative;z-index:6;display:inline-grid;place-items:center;width:56px;height:56px;border:3px solid #111;border-radius:50% 50% 50% 0;background:#FFE566;font:400 14px 'Archivo Black',sans-serif;transform:rotate(-45deg);box-shadow:4px 4px 0 #111;margin:0 0 0 10px"><span style="transform:rotate(45deg)">01</span></div><span style="background:#FFF6E8;border:3px solid #111;padding:6px 12px;font:700 12px 'Space Mono',monospace;letter-spacing:.1em;box-shadow:4px 4px 0 #111">CAMP 03 · THE WINDS</span><span aria-hidden="true" style="font:700 12px 'Space Mono',monospace;transform:rotate(-3deg);display:inline-flex;align-items:center;gap:6px;opacity:.85"><svg viewBox="0 0 50 20" width="50" height="20"><path d="M2 16 C 14 2, 30 2, 46 10" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 4"></path><path d="M38 4 L47 10 L37 15" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>fast, by design</span></div>
     <div style="display:inline-block;background:#111;color:#FFF6E8;padding:6px 14px;font:700 13px 'Space Mono',monospace;transform:rotate(-2deg);margin:0 0 24px 16px">REACT COMPONENT LIBRARY · v1.0 · npm</div>
     <h1 style="font:400 clamp(52px,10vw,150px)/0.9 'Archivo Black',sans-serif;margin:0 0 24px;letter-spacing:-.03em">VELOCE<br>UI</h1>
@@ -155,9 +158,10 @@ a{color:#111}a:hover{color:#FF8A7A}
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
   rootRef = React.createRef(); svgRef = React.createRef(); basePathRef = React.createRef(); donePathRef = React.createRef(); markerRef = React.createRef(); barRef = React.createRef();
-  cursorRef = React.createRef(); dotRef = React.createRef(); labelRef = React.createRef();
+  cursorRef = React.createRef(); dotRef = React.createRef(); labelRef = React.createRef(); sceneRef = React.createRef();
   componentDidMount() {
     import('./journey.js').then(m => {
+      m.mountScene(this.sceneRef.current, 'veloce'); this.smooth = m.attachSmoothScroll();
       this.route = m.attachRoute(this, { root: this.rootRef, svg: this.svgRef, base: this.basePathRef, done: this.donePathRef, marker: this.markerRef, bar: this.barRef });
       this.cursor = m.attachCursor({ cursor: this.cursorRef, dot: this.dotRef, label: this.labelRef });
       this.bottle = m.attachBottle();
@@ -165,7 +169,7 @@ class Component extends DCLogic {
     });
   }
   componentWillUnmount() { this.route && this.route.destroy(); this.cursor && this.cursor.destroy(); this.travel && this.travel.destroy(); this.bottle && this.bottle.destroy(); }
-  renderVals() { return { rootRef: this.rootRef, svgRef: this.svgRef, basePathRef: this.basePathRef, donePathRef: this.donePathRef, markerRef: this.markerRef, barRef: this.barRef, cursorRef: this.cursorRef, dotRef: this.dotRef, labelRef: this.labelRef }; }
+  renderVals() { return { rootRef: this.rootRef, svgRef: this.svgRef, basePathRef: this.basePathRef, donePathRef: this.donePathRef, markerRef: this.markerRef, barRef: this.barRef, cursorRef: this.cursorRef, dotRef: this.dotRef, labelRef: this.labelRef, sceneRef: this.sceneRef }; }
 }
 </script>
 </body>
