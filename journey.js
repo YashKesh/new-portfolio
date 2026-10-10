@@ -157,7 +157,7 @@ export function attachTravel({ here, onUnroll, beforeGo }) {
   const overlay = (from, to, arrived) => {
     const o = document.createElement('div'); o.setAttribute('data-jmap', '');
     o.setAttribute('aria-live', 'polite');
-    o.style.cssText = 'position:fixed;inset:0;z-index:200;background:#111;display:grid;place-items:center;opacity:0;transition:opacity .3s;overflow:hidden';
+    o.style.cssText = 'position:fixed;inset:0;z-index:200;background:#F7E9C6;display:grid;place-items:center;opacity:1;overflow:hidden';
     const trail = curve(PLACES);
     o.innerHTML = `<div data-sheet style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,#F7E9C6 0%,#EBD49F 55%,#C8A65E 100%);box-shadow:inset 0 0 90px 36px rgba(70,35,8,.6);clip-path:inset(100% 0 0 0);transition:clip-path .9s cubic-bezier(.3,.9,.3,1)">
       <div data-roll style="position:absolute;left:-2%;right:-2%;height:34px;top:100%;transform:translateY(-50%);background:linear-gradient(#6B4523,#C8A65E 30%,#F7E9C6 50%,#C8A65E 70%,#6B4523);border:3px solid #3B2A1A;border-radius:17px;box-shadow:0 10px 24px rgba(0,0,0,.5);transition:top .9s cubic-bezier(.3,.9,.3,1)"></div>
@@ -175,7 +175,7 @@ export function attachTravel({ here, onUnroll, beforeGo }) {
       <div data-caption style="position:absolute;left:50%;bottom:clamp(16px,4vh,40px);transform:translateX(-50%) rotate(-2deg);background:#111;color:#FFF6E8;border:3px solid #FFF6E8;box-shadow:5px 5px 0 ${RED};padding:10px 16px;font:400 clamp(14px,2.2vw,22px) ${A};white-space:nowrap">${arrived ? 'X MARKS THE SPOT — ' + to.label : from.label + ' → ' + to.label}</div>
     </div>`;
     document.body.appendChild(o);
-    requestAnimationFrame(() => { o.style.opacity = '1'; const sh = o.querySelector('[data-sheet]'); sh.style.clipPath = 'inset(0 0 0 0)'; sh.querySelector('[data-roll]').style.top = '-40px'; });
+    requestAnimationFrame(() => { const sh = o.querySelector('[data-sheet]'); sh.style.clipPath = 'inset(0 0 0 0)'; sh.querySelector('[data-roll]').style.top = '-40px'; });
     return o;
   };
   const go = (href, toId) => {
@@ -195,7 +195,7 @@ export function attachTravel({ here, onUnroll, beforeGo }) {
       if (!t0) t0 = now; const t = Math.min(1, (now - t0) / dur), k = ease(t), L = fwd ? lo + len * k : hi - len * k, pt = path.getPointAtLength(L);
       setReveal(k); const ahead = path.getPointAtLength(Math.max(0, Math.min(total, L + (fwd ? 2 : -2)))); const flip = ahead.x < pt.x ? -1 : 1; const bob = Math.sin(now / 120) * 1.5;
       mk.setAttribute('transform', `translate(${pt.x} ${pt.y + bob})`); mk.querySelector('[data-ship]').setAttribute('transform', `scale(${flip} 1) rotate(${Math.atan2(ahead.y - pt.y, Math.abs(ahead.x - pt.x)) * 180 / Math.PI * .35})`);
-      if (t < 1) requestAnimationFrame(step); else { sessionStorage.setItem('journey-arrive', JSON.stringify({ from: from.id, to: to.id })); sessionStorage.setItem('journey-skip-intro', '1'); setTimeout(() => { if (href.startsWith('#')) { window.__jGoing = false; sessionStorage.removeItem('journey-arrive'); o.style.opacity = '0'; setTimeout(() => o.remove(), 300); const t = document.querySelector(href); t && window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 20, behavior: 'smooth' }); } else location.href = href; }, 300); }
+      if (t < 1) requestAnimationFrame(step); else { sessionStorage.setItem('journey-arrive', JSON.stringify({ from: from.id, to: to.id })); sessionStorage.setItem('journey-skip-intro', '1'); setTimeout(() => { if (href.startsWith('#')) { window.__jGoing = false; sessionStorage.removeItem('journey-arrive'); o.style.opacity = '0'; setTimeout(() => o.remove(), 300); const t = document.querySelector(href); t && window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 20, behavior: 'smooth' }); } else location.href = href; }, 120); }
     };
     setTimeout(() => requestAnimationFrame(step), 900);
     });
@@ -210,7 +210,7 @@ export function attachTravel({ here, onUnroll, beforeGo }) {
     if (!raw) { document.body.classList.add('jready'); }
     if (raw) { sessionStorage.removeItem('journey-arrive'); const { from, to } = JSON.parse(raw);
       if (to === here && !reduced) { const o = overlay(find(from), find(to), true); JAudio.bell(); const mk = o.querySelector('[data-marker]'), tgt = find(to), p = o.querySelector('[data-route]'); const a = arcAt(p, PLACES.indexOf(find(from))), b = arcAt(p, PLACES.indexOf(tgt)); p.style.strokeDasharray = `0 ${Math.min(a, b)} ${Math.abs(b - a)} ${p.getTotalLength()}`; mk.setAttribute('transform', `translate(${tgt.x} ${tgt.y})`); o.style.background = 'transparent'; requestAnimationFrame(() => document.body.classList.add('jready'));
-        setTimeout(() => { o.style.transition = 'opacity .7s ease'; o.style.opacity = '0'; setTimeout(() => o.remove(), 720); }, 1100); } else if (to === here) { document.body.classList.add('jready'); } }
+        setTimeout(() => { o.style.transition = 'opacity .5s ease'; o.style.opacity = '0'; setTimeout(() => o.remove(), 520); }, 450); } else if (to === here) { document.body.classList.add('jready'); } }
   } catch (err) { document.body.classList.add('jready'); }
   return (window.__jTravel = { go, destroy() { removeEventListener('click', onClick); window.__jTravel = null; } });
 }
