@@ -375,7 +375,7 @@ export function attachIntro({ onDone } = {}) {
   const ship = (x, y, s = 1, flip = 1) => `<g transform="translate(${x} ${y}) scale(${s * flip} ${s})" stroke="${INK}" stroke-width="3" stroke-linejoin="round"><path d="M-44 10 L44 10 L30 26 L-30 26 Z" fill="${INK}"></path><path d="M0 10 L0 -48" stroke-width="4"></path><path d="M4 -44 L40 -4 L4 -4 Z" fill="#FBF3DF"></path><path d="M-4 -36 L-30 -8 L-4 -8 Z" fill="${RED}"></path><path d="M0 -48 L18 -42 L0 -36 Z" fill="#FFE566" stroke-width="2"></path></g>`;
   const monster = (x, y) => `<g transform="translate(${x} ${y})" stroke="${INK}" stroke-width="3" stroke-linecap="round" fill="#8FA86B"><path d="M-90 0 q 20 -40 45 0" fill="none" stroke-width="7"></path><path d="M-30 0 q 20 -46 48 0" fill="none" stroke-width="7"></path><path d="M30 0 q 10 -30 24 -44 q 18 -10 30 6 q 4 14 -8 18 q -12 2 -18 -6 q -8 10 -4 26 Z"></path><circle cx="68" cy="-32" r="3" fill="${INK}" stroke="none"></circle><path d="M78 -26 l 10 6 l -12 2" fill="${RED}" stroke-width="2"></path></g>`;
   const compass = (x, y) => `<g transform="translate(${x} ${y})" stroke="${INK}" fill="none" stroke-width="2.5"><circle r="64" fill="#FBF3DF" fill-opacity=".55"></circle><circle r="52" stroke-dasharray="3 6"></circle><circle r="8" fill="${INK}"></circle><path d="M0 -62 L10 0 L0 62 L-10 0 Z" fill="${RED}" stroke-width="2"></path><path d="M-62 0 L0 10 L62 0 L0 -10 Z" fill="${INK}" stroke-width="2"></path><path d="M-42 -42 L0 -8 L42 42 M42 -42 L0 -8 L-42 42" stroke-width="2" opacity=".6"></path><text y="-72" text-anchor="middle" style="font:700 16px ${F};fill:${INK}" stroke="none">N</text><text y="86" text-anchor="middle" style="font:700 13px ${F};fill:${INK}" stroke="none">S</text><text x="78" y="5" style="font:700 13px ${F};fill:${INK}" stroke="none">E</text><text x="-90" y="5" style="font:700 13px ${F};fill:${INK}" stroke="none">W</text></g>`;
-  o.innerHTML = `<div data-sheet style="position:absolute;inset:0;clip-path:${burn};background:radial-gradient(ellipse at 50% 45%,#EFDDB3 0%,#E2C98F 55%,#B98F4C 100%);box-shadow:inset 0 0 90px 40px rgba(70,35,8,.8);transform:translateY(110vh);transition:transform .9s cubic-bezier(.2,.8,.2,1)">
+  o.innerHTML = `<div data-sheet style="position:absolute;inset:0;clip-path:${burn};background:radial-gradient(ellipse at 50% 45%,#EFDDB3 0%,#E2C98F 55%,#B98F4C 100%);box-shadow:inset 0 0 90px 40px rgba(70,35,8,.8);transform:translateX(-110vw);transition:transform 1.1s cubic-bezier(.2,.75,.25,1)">
       <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 23px,rgba(59,42,26,.08) 23px 24px),repeating-linear-gradient(90deg,transparent 0 23px,rgba(59,42,26,.08) 23px 24px);mix-blend-mode:multiply"></div>
       <div style="position:absolute;inset:0;background:radial-gradient(circle at 18% 22%,rgba(90,50,10,.22) 0 6%,transparent 10%),radial-gradient(circle at 82% 78%,rgba(90,50,10,.18) 0 8%,transparent 12%),radial-gradient(circle at 70% 15%,rgba(90,50,10,.12) 0 4%,transparent 7%)"></div>
       <svg viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%">
@@ -417,15 +417,15 @@ export function attachIntro({ onDone } = {}) {
   window.__jIntro = inst;
   const wait = (ms, fn) => timers.push(setTimeout(fn, ms));
   const end = () => { if (done) return; done = true; inst.live = false; timers.forEach(clearTimeout);
-    sheet.style.transition = 'transform .8s cubic-bezier(.6,0,.4,1)'; sheet.style.transform = 'translateY(-120vh)'; o.style.transition = 'opacity .4s .5s'; o.style.opacity = '0';
+    sheet.style.transition = 'transform .9s cubic-bezier(.6,0,.4,1)'; sheet.style.transform = 'translateX(120vw)'; o.style.transition = 'opacity .4s .5s'; o.style.opacity = '0';
     setTimeout(() => { o.remove(); inst.onDone.forEach(f => f()); }, 950); };
   q('[data-skip]').addEventListener('click', end);
   if (reduced) { sheet.style.transition = 'none'; sheet.style.transform = 'none'; letter.style.opacity = '1'; text.textContent = msg; wait(1400, end); return inst; }
-  requestAnimationFrame(() => { sheet.style.transform = 'translateY(0)'; });
-  wait(700, () => { letter.style.opacity = '1'; });
+  requestAnimationFrame(() => { sheet.style.transform = 'translateX(0)'; });
+  wait(1250, () => { letter.style.opacity = '1'; });
   const placeQuill = () => { const r = document.createRange(); const n = text.firstChild; if (!n || !n.length) return; r.setStart(n, n.length - 1); r.setEnd(n, n.length); const b = r.getBoundingClientRect(), lb = letter.getBoundingClientRect(); quill.style.transform = `translate(${b.right - lb.left - 6}px, ${b.bottom - lb.top - 84}px)`; };
   let i = 0; const type = () => { text.textContent = msg.slice(0, ++i); quill.style.opacity = '1'; placeQuill(); if (i < msg.length) wait(msg[i - 1] === '\n' ? 220 : 70 + Math.random() * 50, type); else { wait(300, () => { quill.style.opacity = '0'; }); wait(1500, end); } };
-  wait(1300, type);
+  wait(1700, type);
   return inst;
 }
 
