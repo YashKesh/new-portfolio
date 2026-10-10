@@ -434,7 +434,7 @@ export function attachSmoothScroll() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches || matchMedia('(pointer: coarse)').matches || window.__jSmooth) return window.__jSmooth || { destroy() {} };
   let target = scrollY, cur = scrollY, raf = 0, active = false;
   const max = () => document.documentElement.scrollHeight - innerHeight;
-  const tick = () => { raf = 0; cur += (target - cur) * .12; if (Math.abs(target - cur) < .5) { cur = target; active = false; } window.scrollTo({ top: cur, behavior: 'instant' }); if (active) raf = requestAnimationFrame(tick); };
+  const tick = () => { raf = 0; cur += (target - cur) * .08; if (Math.abs(target - cur) < .5) { cur = target; active = false; } window.scrollTo({ top: cur, behavior: 'instant' }); if (active) raf = requestAnimationFrame(tick); };
   const onWheel = e => {
     if (document.documentElement.style.overflow === 'hidden' || e.ctrlKey) return;
     e.preventDefault();
