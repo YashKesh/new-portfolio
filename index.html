@@ -10,6 +10,8 @@
 <script defer>window.addEventListener("DOMContentLoaded",function(){try{if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;if(typeof Lenis!=="function")return;var l=new Lenis({duration:2.2,easing:function(t){return Math.min(1,1.001-Math.pow(2,-10*t))},smoothWheel:true,wheelMultiplier:0.55,touchMultiplier:0.9,lerp:0.08});function raf(t){l.raf(t);requestAnimationFrame(raf)}requestAnimationFrame(raf);window.__lenis=l;}catch(e){}});</script>
 </head>
 <body>
+<div id="j-pre-intro" style="position:fixed;inset:0;z-index:1000;background:#1a1410"></div>
+<script>setTimeout(function(){var e=document.getElementById('j-pre-intro');e&&e.parentNode&&e.parentNode.removeChild(e)},5000);</script>
 <x-dc>
 <helmet>
 <title>Yash Kesharwani — Software Engineer who builds things that move</title>

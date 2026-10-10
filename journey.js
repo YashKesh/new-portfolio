@@ -362,7 +362,7 @@ export function attachCursor(refs) {
 export function attachIntro({ onDone } = {}) {
   // plays on every fresh page load; skipped only when arriving via an in-site travel transition
   if (window.__jIntro && window.__jIntro.live) { onDone && window.__jIntro.onDone.push(onDone); return window.__jIntro; }
-  if (sessionStorage.getItem('journey-skip-intro')) { sessionStorage.removeItem('journey-skip-intro'); onDone && onDone(); return { destroy() {} }; }
+  if (sessionStorage.getItem('journey-skip-intro')) { sessionStorage.removeItem('journey-skip-intro'); var __pre0 = document.getElementById('j-pre-intro'); if (__pre0 && __pre0.parentNode) __pre0.parentNode.removeChild(__pre0); onDone && onDone(); return { destroy() {} }; }
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const F = "'Space Mono',monospace", A = "'Archivo Black',sans-serif", INK = '#3B2A1A', RED = '#9B2222', LAND = '#D9BE86', LAND2 = '#B8984F', SEA = '#C9B98E';
   const o = document.createElement('div'); o.setAttribute('data-jintro', ''); o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Welcome');
@@ -410,6 +410,7 @@ export function attachIntro({ onDone } = {}) {
       <button type="button" data-skip style="position:absolute;right:4%;bottom:5%;background:#111;color:#FFF6E8;border:3px solid #FFF6E8;box-shadow:4px 4px 0 ${RED};padding:10px 16px;font:700 12px ${F};letter-spacing:.1em;cursor:pointer;min-height:44px">SKIP →</button>
     </div>`;
   document.body.appendChild(o);
+  var __pre = document.getElementById('j-pre-intro'); if (__pre && __pre.parentNode) __pre.parentNode.removeChild(__pre);
   const q = s => o.querySelector(s), sheet = q('[data-sheet]'), letter = q('[data-letter]'), text = q('[data-text]'), quill = q('[data-quill]');
   const msg = "Hi, I'm Yash.\nBe ready for\nthis journey.";
   let done = false, timers = []; const inst = { live: true, onDone: onDone ? [onDone] : [], destroy() {} };
